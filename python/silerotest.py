@@ -1,44 +1,44 @@
-# pip install torch
-# pip install numpy
-# pip install torchaudio omegaconf
+# pip install torch numpy torchaudio omegaconf
 
-print("q0")
+import sys
 
-# V3
-import os
-import torch
+# https://stackoverflow.com/a/33329251
+outputFile = sys.argv[1]
+inputText = sys.argv[2]
+print("outputFile=" + outputFile)
+print("textToSpeach=" + inputText)
 
-print("q1")
 
-device = torch.device('cpu')
-torch.set_num_threads(4)
-local_file = 'model.pt'
+def tts(outputFile, inputText):
+    import torch
+    import os
+    # https://github.com/snakers4/silero-models#installation-and-basics
+    print("q1")
+    device = torch.device('cpu')
+    torch.set_num_threads(4)
+    local_file = 'tts-model.pt'
 
-print("q2")
+    print("q2")
+    if not os.path.isfile(local_file):
+        torch.hub.download_url_to_file(
+            'https://models.silero.ai/models/tts/ru/v3_1_ru.pt', local_file)
 
-if not os.path.isfile(local_file):
-    torch.hub.download_url_to_file('https://models.silero.ai/models/tts/ru/v3_1_ru.pt',
-                                   local_file)  
-    
-print("q3")    
+    print("q3")
+    model = torch.package.PackageImporter(
+        local_file).load_pickle("tts_models", "model")
+    model.to(device)
+    # aidar, baya, kseniya, xenia, eugene
+    sample_rate = 48000
+    speaker = 'baya'
+    speaker = 'xenia'
+    speaker = 'aidar'
+    # put_accent=True
+    # put_yo=True
 
-model = torch.package.PackageImporter(local_file).load_pickle("tts_models", "model")
-model.to(device)
+    print("q4")
+    audio_paths = model.save_wav(
+        text=inputText, speaker=speaker, sample_rate=sample_rate)
+        # text=inputText, speaker=speaker, sample_rate=sample_rate, put_accent=put_accent, put_yo=put_yo)
+    print(audio_paths)
 
-example_text = 'роблокс дорс амонг ас ставь лайк подпешись на канал но главное не будь жадиной и учи уроки двоешник и будь ты человеком хотите историю расскажу да? нуладно рассказываюкакието люди в школе ёршиком проводят по стенам ааааааа а а а а а а  аа а а а а а а а а а а а а а а а а а а а  а а kiss лягушка и шемпанзе и люди и наушник и рыба и каралы неандертальци опила ооооооооооо о о о о о о о о а б в г д е ё ж з и й к л м н о п р с т у ф х ц ч ш щ ъ ы ь э ю я  стаки бёрд  амогус и абобус копибара В недрах тундры выдры в г+етрах т+ырят в вёдра ядра кедров.'
-sample_rate = 48000
-speaker='baya'
-
-#https://github.com/snakers4/silero-models#installation-and-basics
-#aidar, baya, kseniya, xenia, eugene
-
-speaker='xenia'
-speaker='aidar'
-
-print("q4")
-
-audio_paths = model.save_wav(text=example_text,
-                             speaker=speaker,
-                             sample_rate=sample_rate)
-
-print("q5")
+tts(outputFile, inputText)
