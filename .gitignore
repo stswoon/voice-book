@@ -2,3 +2,6 @@
 /python/test.wav
 /python/somebookrun/
 /.idea/
+/server/node_modules/
+/python/bookRuns/
+/server/dist/
