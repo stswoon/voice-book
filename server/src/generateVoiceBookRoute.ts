@@ -63,16 +63,16 @@ function tts(text: string, cwd: string): Promise<void> {
         // https://nodejs.org/api/child_process.html#child_processspawncommand-args-options
         const spawn = require("child_process").spawn;
         const pythonProcess = spawn('python', ["silerotest.py", '"' + text + '"'], {cwd});
-        pythonProcess.stdout.on('data', (data) => {
+        pythonProcess.stdout.on('data', (data: Buffer) => {
             console.log("Logs from python");
             console.log(data.toString());
         });
-        pythonProcess.stderr.on('data', (data) => {
+        pythonProcess.stderr.on('data', (data: Buffer) => {
             console.error("Error from python");
             console.error(data.toString());
             reject(new Error("Python failed"))
         });
-        pythonProcess.on('close', (code) => {
+        pythonProcess.on('close', (code: number) => {
             console.log(`Python child process exited with code ${code}`);
             resolve();
         });
@@ -117,6 +117,6 @@ async function glueFiles(id: string, length: number) {
     //https://www.npmjs.com/package/audioconcat
     audioconcat(songs)
         .concat(`${bookRunsPath}/${id}/concatenated-audio.mp3`)
-        .on('error', error => console.error('Failed to concatenate files', error))
+        .on('error', (error: any) => console.error('Failed to concatenate files', error))
         .on('end', () => console.info('Audio prompts generated'));
 }

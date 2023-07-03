@@ -3,13 +3,15 @@
   "version": "0.0.1",
   "scripts": {
     "start": "node dist/server.js",
-    "build": "npm run clear && tsc",
-    "serve": "concurrently \"tsc --watch\" \"nodemon --delay 100ms dist/server.js\"",
-    "clear": "rimraf server/dist"
+    "build": "npm run clear && tsc && npm run copy-assets",
+    "serve": "npm run copy-assets && concurrently \"tsc --watch\" \"nodemon --delay 100ms dist/server.js\"",
+    "clear": "rimraf server/dist",
+    "copy-assets": "copyfiles -f src/static/**/*.* dist/static"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "audioconcat": "^0.1.4",
+    "copyfiles": "^2.4.1",
     "express": "^4.15.2",
     "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^11.1.1",
@@ -24,6 +26,7 @@
     "concurrently": "^8.0.1",
     "nodemon": "^2.0.22",
     "rimraf": "^5.0.0",
+    "source-map-support": "^0.5.21",
     "typescript": "^5.0.4"
   }
 }

@@ -1,3 +1,5 @@
+require('source-map-support').install();
+
 import express, {NextFunction, Request, Response} from "express";
 import {generateVoiceBookRoutes} from "./generateVoiceBookRoute";
 
@@ -14,7 +16,7 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction): void =>
 });
 
 app.get("/health", (req: Request, res: Response) => res.send("OK"));
-app.use("/", express.static("static"));
+app.use("/", express.static(__dirname + "/static"));
 
 app.use("/api/generateVoiceBook", generateVoiceBookRoutes);
 

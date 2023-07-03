@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Voice Book</title>
+</head>
+<body>
+
+<div>
+    <button onclick="send()">Send</button>
+</div>
+<div>
+    <textarea id="input" cols="100" rows="30"></textarea>
+</div>
+
+<script>
+    window.send = function () {
+        console.log("sending text...");
+        const text = document.getElementById("input").value;
+        const data = {text};
+        fetch("/api/generateVoiceBook", {method: "POST", body: JSON.stringify(data)})
+            .then(res => res.blob())
+            .then(blob => {
+                const file = window.URL.createObjectURL(blob);
+                window.location.assign(file);
+                console.log("sending text - finished");
+            })
+            .catch(cause => {
+                console.error(cause);
+                alert("Error");
+            });
+    };
+</script>
+
+</body>
+</html>
