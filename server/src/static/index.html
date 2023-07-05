@@ -8,28 +8,68 @@
 
 <div>
     <button onclick="send()">Send</button>
+    <button id="download" onclick="download()">Not Ready</button>
 </div>
 <div>
-    <textarea id="input" cols="100" rows="30"></textarea>
+    <textarea id="input" cols="100" rows="30">
+        Привет Мир!
+        Привет Мир два!
+        Привет Мир три!
+        Привет Мир четыре!
+        Привет Мир пять!
+    </textarea>
 </div>
 
 <script>
+    let processId;
     window.send = function () {
+        processId = null;
         console.log("sending text...");
         const text = document.getElementById("input").value;
         const data = {text};
-        fetch("/api/generateVoiceBook", {method: "POST", body: JSON.stringify(data)})
-            .then(res => res.blob())
-            .then(blob => {
-                const file = window.URL.createObjectURL(blob);
-                window.location.assign(file);
-                console.log("sending text - finished");
+        fetch("/api/generateVoiceBook", {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {"Content-Type": "application/json; charset=utf-8"}
+        })
+            .then(res => res.json())
+            .then(res => {
+                processId = res.processId;
+                const intervalId = setInterval(() => {
+                    fetch("/api/generateVoiceBook/progress/" + processId)
+                        .then(res => res.json())
+                        .then(res => {
+                            if (res.status === "ready") {
+                                document.getElementById("download").innerText = "Ready to download";
+                                clearInterval(intervalId);
+                            } else {
+                                document.getElementById("download").innerText = res.status;
+                            }
+                        })
+                        .catch(cause => {
+                            clearInterval(intervalId);
+                            console.error(cause);
+                            alert("Error");
+                        });
+                }, 1000); //TODO debounce after finish request
             })
             .catch(cause => {
                 console.error(cause);
                 alert("Error");
             });
     };
+
+    window.download = function () {
+        window.location.href = window.location.origin + "/api/generateVoiceBook/" + processId;
+        // fetch("/api/generateVoiceBook/" + processId)
+        //     .then(res => res.blob())
+        //     .then(blob => {
+        //         const file = window.URL.createObjectURL(blob);
+        //         window.location.assign(file);
+        //     });
+    }
+
+
 </script>
 
 </body>

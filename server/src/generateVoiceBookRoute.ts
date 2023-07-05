@@ -4,27 +4,55 @@ import fse from "fs-extra";
 import {spawn} from "child_process";
 import ffmpeg from "fluent-ffmpeg";
 import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
+
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
+import {uniqueNamesGenerator, adjectives, colors, animals} from "unique-names-generator";
+
+const generateName = (): string => uniqueNamesGenerator({dictionaries: [adjectives, colors, animals]}); // big_red_donkey
 
 export const generateVoiceBookRoutes = Router();
+
+const progress: any = {};
 
 generateVoiceBookRoutes.post("/", async (req, res) => {
     try {
         const text = req.body.text;
         const textItems = splitText(text);
-        const id = uuid();
+        // const id = uuid();
+        const id = generateName();
+        progress[id] = 'queue 1/1'; //todo queue progress
+        res.status(200).json({processId: id, status: "queue"});
         await generateAudios(textItems, id)
         await glueFiles(id, textItems.length);
-        return res.status(200).json({status: "ok"});
+        progress[id] = 100;
+        return;
     } catch (error) {
         console.error(error);
         return res.status(500).json({error: "Sorry, something went wrong"});
     }
 });
 
+generateVoiceBookRoutes.get("/:id", async (req, res) => {
+    //TODO save 1 hour;
+    const id = req.params.id;
+    res.download(`${bookRunsPath}/${id}/concatenated-audio.mp3`)
+    // const file = fse.readFileSync(`${bookRunsPath}/${id}/concatenated-audio.mp3`);
+    // res.setHeader('Content-Length', file.length);
+    // res.write(file, 'binary');
+    // res.end();
+});
+
+generateVoiceBookRoutes.get("/progress/:id", async (req, res) => {
+    const id = req.params.id;
+    if (progress[id] == null) {
+        return res.status(404).json({processId: id, status: "not exist"});
+    }
+    return res.status(200).json({processId: id, status: progress[id] === 100 ? "ready" : progress[id]});
+});
+
 function splitText(text: string) {
     text = text.trim();
-    let items = text.split("."); //good for tests
+    let items = text.split(/[.?!]+/); //good for tests
     items = items.filter(item => {
         return item.trim().length !== 0;
     });
@@ -32,11 +60,14 @@ function splitText(text: string) {
     //TODO take every paragraph but if it more then 1000 then need to split into several sentences not more 1000 symbols
 }
 
-const bookRunsPath = __dirname + "/../../python/bookRuns"
+const bookRunsPath = __dirname + "/../../python/bookRuns";
+
 async function generateAudios(textItems: string[], id: string) {
     console.log("generateAudios::id=" + id);
     await fse.mkdir(`${bookRunsPath}/${id}`);
 
+    progress[id] = 0;
+    //TODO: pool pattern
     let i = 0;
     while (i < textItems.length) {
         const ttsPromises = [];
@@ -46,6 +77,7 @@ async function generateAudios(textItems: string[], id: string) {
         if (i + 3 < textItems.length) ttsPromises.push(generateAudio(textItems[i + 3], `${bookRunsPath}/${id}/${i + 3}`));
         await Promise.all(ttsPromises);
         i += 4; //TODO dynamic
+        progress[id] = Math.floor((i - 1) / textItems.length * 100);
     }
 }
 
