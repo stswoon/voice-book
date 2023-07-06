@@ -13,3 +13,4 @@ TODO prettify code
 TODO pack in docker node + python + pip install
 TODO deploy
 TODO docs
+TODO create booksRun folder if not exists
