@@ -8,9 +8,8 @@ pip freeze > requirements.txt
 
 
 
-
-1) add UI
-2) prettify
-3) pack in docker node + python + pip install
-4) install
-5) improve 1000, improve poll pattern
+TODO more fancy
+TODO prettify code
+TODO pack in docker node + python + pip install
+TODO deploy
+TODO docs
