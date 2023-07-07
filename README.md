@@ -17,3 +17,7 @@ TODO create booksRun folder if not exists
 
 
 docker build . -t voice-book:0.0.1
+
+
+TODO: publish image after RUN pip install silero==0.4.1
+TOOO: dockerport
