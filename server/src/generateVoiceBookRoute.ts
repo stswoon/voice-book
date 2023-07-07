@@ -64,6 +64,9 @@ const bookRunsPath = __dirname + "/../../python/bookRuns";
 
 async function generateAudios(textItems: string[], id: string) {
     console.log("generateAudios::id=" + id);
+    if (!fse.pathExistsSync(`${bookRunsPath}`)) {
+        await fse.mkdir(`${bookRunsPath}`);
+    }
     await fse.mkdir(`${bookRunsPath}/${id}`);
 
     progress[id] = 0;
