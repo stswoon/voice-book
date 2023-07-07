@@ -7,5 +7,6 @@ COPY server server
 RUN cd server && npm ci && npm run build
 
 ENV NODE_ENV=production
+ENV PORT=8080
 EXPOSE 8080
 CMD ["node", "server/dist/server.js"]
