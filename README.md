@@ -14,3 +14,6 @@ TODO pack in docker node + python + pip install
 TODO deploy
 TODO docs
 TODO create booksRun folder if not exists
+
+
+docker build . -t voice-book:0.0.1
