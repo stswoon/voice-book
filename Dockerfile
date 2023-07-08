@@ -1,5 +1,4 @@
-FROM nikolaik/python-nodejs:python3.9-nodejs18-slim
-#RUN pip install silero==0.4.1
+FROM stswoon/python-nodejs-silero:python3.9-nodejs18-silero0.4.11
 
 WORKDIR /app
 COPY python python
