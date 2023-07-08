@@ -1,5 +1,5 @@
-
 import sys
+
 # https://stackoverflow.com/a/63573649  - because of error while run from node "UnicodeEncodeError: 'charmap' codec can't encode characters in position 12-19: character maps to <undefined>"
 sys.stdin.reconfigure(encoding='utf-8')
 sys.stdout.reconfigure(encoding='utf-8')
@@ -19,8 +19,9 @@ def tts(input_text):
     print("step1 - device")
     sys.stdout.flush()
 
-    device = torch.device('cpu')
-    torch.set_num_threads(4)
+    device = torch.device('cpu')  # TODO: gpu
+    # torch.set_num_threads(4)
+    torch.set_num_threads(1)
 
     print("step2 - find or download model")
     sys.stdout.flush()
