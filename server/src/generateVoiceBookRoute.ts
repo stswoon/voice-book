@@ -17,7 +17,7 @@ generateVoiceBookRoutes.post("/", async (req, res) => {
     const id = generateName();
     try {
         const text = req.body.text;
-        const textItems = splitText(text);
+        const textItems = splitText(text, 1000);
         if (textItems.length === 0) {
             throw new Error("empty text");
         }
@@ -53,7 +53,7 @@ generateVoiceBookRoutes.get("/progress/:id", async (req, res) => {
 });
 
 //export only for test
-export function splitText(text: string): string[] {
+export function splitText(text: string, maxLen: number = 1000): string[] {
     text = text.trim();
     let items = text.split(/[.?!]+/); //good for tests
     items = items.filter(item => {
