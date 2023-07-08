@@ -6,7 +6,8 @@
     "build": "npm run clear && tsc && npm run copy-assets",
     "serve": "npm run copy-assets && concurrently \"tsc --watch\" \"nodemon --delay 100ms dist/server.js\"",
     "clear": "rimraf server/dist",
-    "copy-assets": "copyfiles -f src/static/**/*.* dist/static"
+    "copy-assets": "copyfiles -f src/static/**/*.* dist/static",
+    "test": "ts-mocha -p tsconfig.json src/**/*.spec.ts"
   },
   "dependencies": {
     "@ffmpeg-installer/ffmpeg": "^1.1.0",
@@ -15,19 +16,20 @@
     "express": "^4.15.2",
     "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "^11.1.1",
-    "uuid": "^9.0.0",
     "unique-names-generator": "^4.7.1"
   },
   "devDependencies": {
+    "@types/expect": "^24.3.0",
     "@types/express": "^4.17.17",
     "@types/fluent-ffmpeg": "^2.1.21",
     "@types/fs-extra": "^11.0.1",
+    "@types/mocha": "^10.0.1",
     "@types/node": "^14.0.0",
-    "@types/uuid": "^9.0.0",
     "concurrently": "^8.0.1",
     "nodemon": "^2.0.22",
     "rimraf": "^5.0.0",
     "source-map-support": "^0.5.21",
+    "ts-mocha": "^10.0.0",
     "typescript": "^5.0.4"
   }
 }

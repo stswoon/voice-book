@@ -40,8 +40,14 @@
                         .then(res => res.json())
                         .then(res => {
                             if (res.status === "ready") {
-                                document.getElementById("download").innerText = "Ready to download";
                                 clearInterval(intervalId);
+                                document.getElementById("download").innerText = "Ready to download";
+                            } else if (res.status === "not exist") {
+                                clearInterval(intervalId);
+                                document.getElementById("download").innerText = res.status;
+                            } else if (res.status === "error") {
+                                clearInterval(intervalId);
+                                document.getElementById("download").innerText = res.status;
                             } else {
                                 document.getElementById("download").innerText = res.status;
                             }

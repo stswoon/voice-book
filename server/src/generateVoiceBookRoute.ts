@@ -1,5 +1,4 @@
 import {Router} from "express";
-import {v4 as uuid} from "uuid";
 import fse from "fs-extra";
 import {spawn} from "child_process";
 import ffmpeg from "fluent-ffmpeg";
@@ -15,11 +14,13 @@ export const generateVoiceBookRoutes = Router();
 const progress: any = {};
 
 generateVoiceBookRoutes.post("/", async (req, res) => {
+    const id = generateName();
     try {
         const text = req.body.text;
         const textItems = splitText(text);
-        // const id = uuid();
-        const id = generateName();
+        if (textItems.length === 0) {
+            throw new Error("empty text");
+        }
         progress[id] = 'queue 1/1'; //todo queue progress
         res.status(200).json({processId: id, status: "queue"});
         await generateAudios(textItems, id)
@@ -27,6 +28,7 @@ generateVoiceBookRoutes.post("/", async (req, res) => {
         progress[id] = 100;
         return;
     } catch (error) {
+        progress[id] = "error";
         console.error(error);
         return res.status(500).json({error: "Sorry, something went wrong"});
     }
@@ -50,7 +52,8 @@ generateVoiceBookRoutes.get("/progress/:id", async (req, res) => {
     return res.status(200).json({processId: id, status: progress[id] === 100 ? "ready" : progress[id]});
 });
 
-function splitText(text: string) {
+//export only for test
+export function splitText(text: string): string[] {
     text = text.trim();
     let items = text.split(/[.?!]+/); //good for tests
     items = items.filter(item => {
@@ -62,7 +65,7 @@ function splitText(text: string) {
 
 const bookRunsPath = __dirname + "/../../python/bookRuns";
 
-async function generateAudios(textItems: string[], id: string) {
+async function generateAudios(textItems: string[], id: string): Promise<void> {
     console.log("generateAudios::id=" + id);
     if (!fse.pathExistsSync(`${bookRunsPath}`)) {
         await fse.mkdir(`${bookRunsPath}`);
@@ -78,16 +81,21 @@ async function generateAudios(textItems: string[], id: string) {
         if (i + 1 < textItems.length) ttsPromises.push(generateAudio(textItems[i + 1], `${bookRunsPath}/${id}/${i + 1}`));
         if (i + 2 < textItems.length) ttsPromises.push(generateAudio(textItems[i + 2], `${bookRunsPath}/${id}/${i + 2}`));
         if (i + 3 < textItems.length) ttsPromises.push(generateAudio(textItems[i + 3], `${bookRunsPath}/${id}/${i + 3}`));
-        await Promise.all(ttsPromises);
+        try {
+            await Promise.all(ttsPromises);
+        } catch (cause) {
+            break;
+            throw cause;
+        }
         i += 4; //TODO dynamic
         progress[id] = Math.floor((i - 1) / textItems.length * 100);
     }
 }
 
-async function generateAudio(text: string, textItemPath: string) {
+async function generateAudio(text: string, textItemPath: string): Promise<void> {
     await fse.mkdir(textItemPath);
     await fse.copyFile(`${__dirname}/../../python/silerotest.py`, `${textItemPath}/silerotest.py`);
-    await tts(text, textItemPath);
+    return await tts(text, textItemPath);
 }
 
 function tts(text: string, cwd: string): Promise<void> {
@@ -109,7 +117,11 @@ function tts(text: string, cwd: string): Promise<void> {
         });
         pythonProcess.on('close', (code: number) => {
             console.log(`Python child process exited with code ${code}`);
-            resolve();
+            if (code === 0) {
+                resolve();
+            } else {
+                reject("Python child process exited with error");
+            }
         });
     });
 }
