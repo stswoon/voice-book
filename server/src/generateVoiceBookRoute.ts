@@ -42,18 +42,20 @@ generateVoiceBookRoutes.get("/progress/:id", async (req, res) => {
 });
 
 
-const deleteOldInterval = 60 * 60 * 1000 //1 hour
-setInterval(() => {
-    for (let id of progress) {
-        if (progress[id].startDate + deleteOldInterval - 1 < (new Date()).getTime()) {
-            fse.removeSync(`${bookRunsPath}/${id}`);
-        }
-    }
-}, deleteOldInterval);
+// const deleteOldInterval = 24 * 60 * 60 * 1000 //24 hour
+// setInterval(() => {
+//     for (let id of progress) {
+//         if (progress[id].startDate + deleteOldInterval - 1 < (new Date()).getTime()) {
+//             fse.removeSync(`${bookRunsPath}/${id}`);
+//         }
+//     }
+// }, deleteOldInterval);
+
+const SILERO_MAX_LEN = 900; //sometimes fails if near 1000
 
 async function runVoiceBook(id: string, text: string): Promise<void> {
     text = translitToRussian(text);
-    const textItems = splitText(text, 1000);
+    const textItems = splitText(text, SILERO_MAX_LEN);
     if (textItems.length === 0) {
         progress[id].status = "error";
         console.error("empty text");
@@ -63,6 +65,8 @@ async function runVoiceBook(id: string, text: string): Promise<void> {
     await glueFiles(id, textItems.length);
     progress[id].status = "ready";
 }
+
+//TODO: maybe split by sentence is better to sounds
 
 //export only for test
 export function splitText(text: string, maxLen: number = 1000): string[] {
@@ -124,7 +128,7 @@ async function generateAudios(textItems: string[], id: string): Promise<void> {
     await fse.mkdir(`${bookRunsPath}/${id}`);
 
     progress[id].status = 0;
-    const progressDelta = 99 / textItems.length;
+    const progressDelta = 95 / textItems.length;
 
     const pool = new TaskPool({concurrency: POOL_LIMIT});
     for (let i = 0; i < textItems.length; ++i) {
