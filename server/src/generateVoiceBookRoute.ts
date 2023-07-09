@@ -3,42 +3,44 @@ import fse from "fs-extra";
 import {spawn} from "child_process";
 import ffmpeg from "fluent-ffmpeg";
 import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
-
-ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 import {uniqueNamesGenerator, adjectives, colors, animals} from "unique-names-generator";
 import {Task, TaskPool} from '@antmind/task-pool';
 
-
 const generateName = (): string => uniqueNamesGenerator({dictionaries: [adjectives, colors, animals]}); // big_red_donkey
+ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 
 export const generateVoiceBookRoutes = Router();
 
 const progress: any = {};  //id, {status, date}
 
-
 generateVoiceBookRoutes.post("/", async (req, res) => {
     const id = generateName();
     try {
         const text = req.body.text;
-        const textItems = splitText(text, 1000);
-        if (textItems.length === 0) {
-            throw new Error("empty text");
-        }
-        progress[id] = {
-            status: 'queue 1/1', //todo queue progress
-            startDate: (new Date()).getTime()
-        };
-        res.status(200).json({processId: id, status: "queue"});
-        await generateAudios(textItems, id)
-        await glueFiles(id, textItems.length);
-        progress[id].status = "ready";
-        return;
+        progress[id] = {status: 'queue 1/1', startDate: (new Date()).getTime()}; //todo queue progress
+        runVoiceBook(id, text);
+        return res.status(200).json({processId: id, status: "queue"});
     } catch (error) {
         progress[id].status = "error";
         console.error(error);
         return res.status(500).json({error: "Sorry, something went wrong"});
     }
 });
+
+generateVoiceBookRoutes.get("/:id", async (req, res) => {
+    const id = req.params.id;
+    return res.download(`${bookRunsPath}/${id}/concatenated-audio.mp3`)
+});
+
+generateVoiceBookRoutes.get("/progress/:id", async (req, res) => {
+    const id = req.params.id;
+    if (progress[id] == null) {
+        return res.status(404).json({processId: id, status: "notExist"});
+    } else {
+        return res.status(200).json({processId: id, status: progress[id].status});
+    }
+});
+
 
 const deleteOldInterval = 60 * 60 * 1000 //1 hour
 setInterval(() => {
@@ -49,18 +51,17 @@ setInterval(() => {
     }
 }, deleteOldInterval);
 
-generateVoiceBookRoutes.get("/:id", async (req, res) => {
-    const id = req.params.id;
-    res.download(`${bookRunsPath}/${id}/concatenated-audio.mp3`)
-});
-
-generateVoiceBookRoutes.get("/progress/:id", async (req, res) => {
-    const id = req.params.id;
-    if (progress[id] == null) {
-        return res.status(404).json({processId: id, status: "notExist"});
+async function runVoiceBook(id: string, text: string): Promise<void> {
+    const textItems = splitText(text, 1000);
+    if (textItems.length === 0) {
+        progress[id].status = "error";
+        console.error("empty text");
+        throw new Error("empty text");
     }
-    return res.status(200).json({processId: id, status: progress[id].status});
-});
+    await generateAudios(textItems, id);
+    await glueFiles(id, textItems.length);
+    progress[id].status = "ready";
+}
 
 //export only for test
 export function splitText(text: string, maxLen: number = 1000): string[] {
