@@ -13,7 +13,8 @@ const generateName = (): string => uniqueNamesGenerator({dictionaries: [adjectiv
 
 export const generateVoiceBookRoutes = Router();
 
-const progress: any = {};
+const progress: any = {};  //id, {status, date}
+
 
 generateVoiceBookRoutes.post("/", async (req, res) => {
     const id = generateName();
@@ -23,35 +24,42 @@ generateVoiceBookRoutes.post("/", async (req, res) => {
         if (textItems.length === 0) {
             throw new Error("empty text");
         }
-        progress[id] = 'queue 1/1'; //todo queue progress
+        progress[id] = {
+            status: 'queue 1/1', //todo queue progress
+            startDate: (new Date()).getTime()
+        };
         res.status(200).json({processId: id, status: "queue"});
         await generateAudios(textItems, id)
         await glueFiles(id, textItems.length);
-        progress[id] = 100;
+        progress[id].status = "ready";
         return;
     } catch (error) {
-        progress[id] = "error";
+        progress[id].status = "error";
         console.error(error);
         return res.status(500).json({error: "Sorry, something went wrong"});
     }
 });
 
+const deleteOldInterval = 60 * 60 * 1000 //1 hour
+setInterval(() => {
+    for (let id of progress) {
+        if (progress[id].startDate + deleteOldInterval - 1 < (new Date()).getTime()) {
+            fse.removeSync(`${bookRunsPath}/${id}`);
+        }
+    }
+}, deleteOldInterval);
+
 generateVoiceBookRoutes.get("/:id", async (req, res) => {
-    //TODO save 1 hour;
     const id = req.params.id;
     res.download(`${bookRunsPath}/${id}/concatenated-audio.mp3`)
-    // const file = fse.readFileSync(`${bookRunsPath}/${id}/concatenated-audio.mp3`);
-    // res.setHeader('Content-Length', file.length);
-    // res.write(file, 'binary');
-    // res.end();
 });
 
 generateVoiceBookRoutes.get("/progress/:id", async (req, res) => {
     const id = req.params.id;
     if (progress[id] == null) {
-        return res.status(404).json({processId: id, status: "not exist"});
+        return res.status(404).json({processId: id, status: "notExist"});
     }
-    return res.status(200).json({processId: id, status: progress[id] === 100 ? "ready" : progress[id]});
+    return res.status(200).json({processId: id, status: progress[id].status});
 });
 
 //export only for test
@@ -76,7 +84,7 @@ async function generateAudios(textItems: string[], id: string): Promise<void> {
     }
     await fse.mkdir(`${bookRunsPath}/${id}`);
 
-    progress[id] = 0;
+    progress[id].status = 0;
     const progressDelta = 99 / textItems.length;
 
     const pool = new TaskPool({concurrency: POOL_LIMIT});
@@ -84,7 +92,7 @@ async function generateAudios(textItems: string[], id: string): Promise<void> {
         const task = new Task(async (i: any) => {
             console.log(`run task ${i}`);
             await generateAudio(textItems[i], `${bookRunsPath}/${id}/${i}`);
-            progress[id] = Math.round(progress[id] + progressDelta);
+            progress[id].status = Math.round(progress[id].status + progressDelta);
             console.log(`finish task ${i}`);
         }, i);
         pool.addTask(task);

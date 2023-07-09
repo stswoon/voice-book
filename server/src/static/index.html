@@ -5,7 +5,8 @@
     <title>Voice Book</title>
 </head>
 <body>
-<h1>Voice Book v0.2</h1>
+
+<h1>Voice Book v0.3</h1>
 <div>
     <button onclick="send()">Send</button>
     <button id="download" onclick="download()">Not Ready</button>
@@ -21,6 +22,30 @@
 </div>
 
 <script>
+    function poll() {
+        setTimeout(() => {
+            fetch("/api/generateVoiceBook/progress/" + processId)
+                .then(res => res.json())
+                .then(res => {
+                    if (res.status === "ready") {
+                        document.getElementById("download").innerText = "Ready to download";
+                    } else if (res.status === "notExist") {
+                        document.getElementById("download").innerText = res.status;
+                    } else if (res.status === "error") {
+                        document.getElementById("download").innerText = res.status;
+                    } else {
+                        document.getElementById("download").innerText = res.status;
+                        poll();
+                    }
+                })
+                .catch(cause => {
+                    console.error(cause);
+                    alert("Error");
+                });
+        }, 5000);
+    }
+
+
     let processId;
     window.send = function () {
         processId = null;
@@ -35,29 +60,7 @@
             .then(res => res.json())
             .then(res => {
                 processId = res.processId;
-                const intervalId = setInterval(() => {
-                    fetch("/api/generateVoiceBook/progress/" + processId)
-                        .then(res => res.json())
-                        .then(res => {
-                            if (res.status === "ready") {
-                                clearInterval(intervalId);
-                                document.getElementById("download").innerText = "Ready to download";
-                            } else if (res.status === "not exist") {
-                                clearInterval(intervalId);
-                                document.getElementById("download").innerText = res.status;
-                            } else if (res.status === "error") {
-                                clearInterval(intervalId);
-                                document.getElementById("download").innerText = res.status;
-                            } else {
-                                document.getElementById("download").innerText = res.status;
-                            }
-                        })
-                        .catch(cause => {
-                            clearInterval(intervalId);
-                            console.error(cause);
-                            alert("Error");
-                        });
-                }, 1000); //TODO debounce after finish request
+                poll();
             })
             .catch(cause => {
                 console.error(cause);
@@ -67,15 +70,7 @@
 
     window.download = function () {
         window.location.href = window.location.origin + "/api/generateVoiceBook/" + processId;
-        // fetch("/api/generateVoiceBook/" + processId)
-        //     .then(res => res.blob())
-        //     .then(blob => {
-        //         const file = window.URL.createObjectURL(blob);
-        //         window.location.assign(file);
-        //     });
     }
-
-
 </script>
 
 </body>
