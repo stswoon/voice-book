@@ -6,6 +6,8 @@ import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
 
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
 import {uniqueNamesGenerator, adjectives, colors, animals} from "unique-names-generator";
+import {Task, TaskPool} from '@antmind/task-pool';
+
 
 const generateName = (): string => uniqueNamesGenerator({dictionaries: [adjectives, colors, animals]}); // big_red_donkey
 
@@ -63,6 +65,8 @@ export function splitText(text: string, maxLen: number = 1000): string[] {
     //TODO take every paragraph but if it more then 1000 then need to split into several sentences not more 1000 symbols
 }
 
+const POOL_LIMIT = 2;
+
 const bookRunsPath = __dirname + "/../../python/bookRuns";
 
 async function generateAudios(textItems: string[], id: string): Promise<void> {
@@ -73,23 +77,20 @@ async function generateAudios(textItems: string[], id: string): Promise<void> {
     await fse.mkdir(`${bookRunsPath}/${id}`);
 
     progress[id] = 0;
-    //TODO: pool pattern
-    let i = 0;
-    while (i < textItems.length) {
-        const ttsPromises = [];
-        ttsPromises.push(generateAudio(textItems[i], `${bookRunsPath}/${id}/${i}`));
-        if (i + 1 < textItems.length) ttsPromises.push(generateAudio(textItems[i + 1], `${bookRunsPath}/${id}/${i + 1}`));
-        if (i + 2 < textItems.length) ttsPromises.push(generateAudio(textItems[i + 2], `${bookRunsPath}/${id}/${i + 2}`));
-        if (i + 3 < textItems.length) ttsPromises.push(generateAudio(textItems[i + 3], `${bookRunsPath}/${id}/${i + 3}`));
-        try {
-            await Promise.all(ttsPromises);
-        } catch (cause) {
-            break;
-            throw cause;
-        }
-        i += 4; //TODO dynamic
-        progress[id] = Math.floor((i - 1) / textItems.length * 100);
+    const progressDelta = 99 / textItems.length;
+
+    const pool = new TaskPool({concurrency: POOL_LIMIT});
+    for (let i = 0; i < textItems.length; ++i) {
+        const task = new Task(async (i: any) => {
+            console.log(`run task ${i}`);
+            await generateAudio(textItems[i], `${bookRunsPath}/${id}/${i}`);
+            progress[id] = Math.round(progress[id] + progressDelta);
+            console.log(`finish task ${i}`);
+        }, i);
+        pool.addTask(task);
     }
+    await pool.exec();
+    console.log("pool finished");
 }
 
 async function generateAudio(text: string, textItemPath: string): Promise<void> {
