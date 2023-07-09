@@ -52,6 +52,7 @@ setInterval(() => {
 }, deleteOldInterval);
 
 async function runVoiceBook(id: string, text: string): Promise<void> {
+    text = translitToRussian(text);
     const textItems = splitText(text, 1000);
     if (textItems.length === 0) {
         progress[id].status = "error";
@@ -66,12 +67,49 @@ async function runVoiceBook(id: string, text: string): Promise<void> {
 //export only for test
 export function splitText(text: string, maxLen: number = 1000): string[] {
     text = text.trim();
-    let items = text.split(/[.?!]+/); //good for tests
-    items = items.filter(item => {
-        return item.trim().length !== 0;
-    });
-    return items;
-    //TODO take every paragraph but if it more then 1000 then need to split into several sentences not more 1000 symbols
+    const replacer = (match: string, p1: string, offset: number, string: string): string => {
+        return p1 + "${splitter}";
+    };
+    text = text.replace(/([.?!]+)/g, replacer);
+    let items = text.split("${splitter}");
+    items = items
+        .map(item => item.trim())
+        .filter(item => item.length !== 0);
+
+    const optimizedItems = [];
+    let i = 0;
+    let optimizedItem = items[i];
+    while (i < items.length) {
+        if (optimizedItem.length > maxLen) {
+            console.warn("Sentence too big, try to split in the middle");
+            const part1 = optimizedItem.substring(0, maxLen);
+            const part2 = optimizedItem.substring(maxLen, optimizedItem.length);
+            if (part1.trim().length) {
+                optimizedItems.push(part1.trim());
+            }
+            if (part2.trim().length) {
+                optimizedItems.push(part2.trim());
+            }
+            optimizedItem = "";
+            if (part2.length > maxLen) {
+                throw new Error("sentence too big even after splitting onto two parts")
+            }
+        } else {
+            if (i + 1 < items.length) { //next element exists
+                if (optimizedItem.length + items[i + 1].length + 1 < maxLen) { //+1 for space
+                    optimizedItem += " " + items[i + 1];
+                } else {
+                    optimizedItems.push(optimizedItem);
+                    optimizedItem = items[i + 1];
+                }
+            } else { //no more next elements
+                optimizedItems.push(optimizedItem);
+                optimizedItem = "";
+            }
+        }
+        ++i;
+    }
+    return optimizedItems;
 }
 
 const POOL_LIMIT = 2;
@@ -127,7 +165,7 @@ function tts(text: string, cwd: string): Promise<void> {
         });
         pythonProcess.on('close', (code: number) => {
             console.log(`Python child process exited with code ${code}`);
-            if (code === 0) {
+            if (code === 0 || code == null) { // https://superfastpython.com/exit-codes-in-python/
                 resolve();
             } else {
                 reject("Python child process exited with error");
@@ -176,4 +214,80 @@ async function glueFiles(id: string, length: number) {
         .concat(`${bookRunsPath}/${id}/concatenated-audio.mp3`)
         .on('error', (error: any) => console.error('Failed to concatenate files', error))
         .on('end', () => console.info('Audio prompts generated'));
+}
+
+function translitToRussian(s: string): string {
+    function safeTranslit(char: string) {
+        switch (char) {
+            case "A": return "А";
+            case "a": return "a";
+            case "B": return "Б";
+            case "b": return "б";
+            case "C": return "Ц";
+            case "c": return "ц";
+            case "D": return "Д";
+            case "d": return "д";
+            case "E": return "И";
+            case "e": return "и";
+            case "F": return "Ф";
+            case "f": return "ф";
+            case "G": return "Г";
+            case "g": return "г";
+            case "H": return "Х";
+            case "h": return "х";
+            case "I": return "И";
+            case "i": return "и";
+            case "J": return "Ж";
+            case "j": return "ж";
+            case "K": return "К";
+            case "k": return "к";
+            case "L": return "Л";
+            case "l": return "л";
+            case "M": return "М";
+            case "m": return "м";
+            case "N": return "Н";
+            case "n": return "н";
+            case "O": return "О";
+            case "o": return "о";
+            case "P": return "П";
+            case "p": return "п";
+            case "Q": return "К";
+            case "q": return "к";
+            case "R": return "Р";
+            case "r": return "р";
+            case "S": return "С";
+            case "s": return "с";
+            case "T": return "Т";
+            case "t": return "т";
+            case "U": return "У";
+            case "u": return "у";
+            case "V": return "В";
+            case "v": return "в";
+            case "W": return "В";
+            case "w": return "в";
+            case "X": return "Экс";
+            case "x": return "экс";
+            case "Y": return "Й";
+            case "y": return "й";
+            case "Z": return "З";
+            case "z": return "з";
+            case "0": return "ноль";
+            case "1": return "один";
+            case "2": return "два";
+            case "3": return "три";
+            case "4": return "четыре";
+            case "5": return "пять";
+            case "6": return "шесть";
+            case "7": return "семь";
+            case "8": return "восемь";
+            case "9": return "девять";
+        }
+        return char;
+    }
+
+    let result = "";
+    for(let i = 0; i < s.length; ++i) {
+        result += safeTranslit(s[i]);
+    }
+    return result
 }
