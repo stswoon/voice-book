@@ -202,7 +202,12 @@ async function glueFiles(id: string, length: number) {
 
     const convertPromises = []
     for (let i = 0; i < length; ++i) {
-        convertPromises.push(convertToMp3(`${bookRunsPath}/${id}/${i}/test.wav`))
+        let filepath = `${bookRunsPath}/${id}/${i}/test.wav`
+        console.log("File path: " + filepath);
+        const path = require("path");
+        filepath = path.normalize(filepath)!;
+        console.log("Simple file path: " + filepath);
+        convertPromises.push(convertToMp3(filepath))
     }
     await Promise.all(convertPromises);
 
