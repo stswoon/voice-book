@@ -5,6 +5,7 @@ import ffmpeg from "fluent-ffmpeg";
 import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
 import {uniqueNamesGenerator, adjectives, colors, animals} from "unique-names-generator";
 import {Task, TaskPool} from '@antmind/task-pool';
+import {glob} from "glob";
 
 const generateName = (): string => uniqueNamesGenerator({dictionaries: [adjectives, colors, animals]}); // big_red_donkey
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
@@ -191,7 +192,14 @@ async function convertToMp3(wavFilename: string) {
 
 
 async function glueFiles(id: string, length: number) {
-    console.log("converting files...")
+    console.log("converting files...");
+
+
+    const files = await glob(bookRunsPath + '/**/test.wav', { ignore: 'node_modules/**' })
+    console.log(files);
+
+
+
     const convertPromises = []
     for (let i = 0; i < length; ++i) {
         convertPromises.push(convertToMp3(`${bookRunsPath}/${id}/${i}/test.wav`))
