@@ -16,6 +16,7 @@
     "copyfiles": "^2.4.1",
     "express": "^4.15.2",
     "fluent-ffmpeg": "^2.1.2",
+    "fluent-ffmpeg-multistream": "^1.0.0",
     "fs-extra": "^11.1.1",
     "glob": "^10.3.3",
     "unique-names-generator": "^4.7.1"
