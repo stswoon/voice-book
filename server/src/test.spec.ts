@@ -1,5 +1,5 @@
-import {splitText} from "./generateVoiceBookRoute";
 import assert from "assert";
+import {splitText} from "./splitText";
 
 
 describe('splitText', () => {

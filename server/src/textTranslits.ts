@@ -126,6 +126,7 @@ export function translitToRussian(s: string): string {
             case "9":
                 return "девять";
         }
+        //TODO: numbers lib for digits
         return char;
     }
 
