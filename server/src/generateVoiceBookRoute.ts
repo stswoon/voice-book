@@ -43,7 +43,7 @@ async function runVoiceBook(id: string, text: string): Promise<void> {
     }
     progress[id].length = textItems.length;
     await generateAudios(progress, textItems, id);
-    await glueFiles(progress, id, textItems.length);
+    await glueFiles(progress, id);
     progress[id].status = "ready";
 }
 

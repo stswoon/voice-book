@@ -2,21 +2,23 @@ import {bookRunsPath, progress, ProgressType} from "./globalProgress";
 // import ffmpeg from "fluent-ffmpeg";
 import * as fluentFfmpegUtil from "fluent-ffmpeg-util";
 // import {glob} from "glob";
+import {Stream, Readable, Writable} from "stream";
 import ffmpeg from "fluent-ffmpeg";
 import ffmpegInstaller from "@ffmpeg-installer/ffmpeg";
-import {Stream, Readable, Writable} from "stream";
+import ffprobeInstaller from "@ffprobe-installer/ffprobe";
 
-const audioconcat = require('audioconcat');
+const audioconcat: any = require('audioconcat');
 // const {createReadStream, createWriteStream} = require("fs")
 ffmpeg.setFfmpegPath(ffmpegInstaller.path);
-// ffmpeg.setFfprobePath(ffmpegInstaller.path);
+ffmpeg.setFfprobePath(ffprobeInstaller.path);
 // const ffprobePath = require('@ffprobe-installer/ffprobe').path;
 // ffmpeg.setFfprobePath(ffprobePath);
 
 export async function glueFiles(progress: ProgressType, id: string) {
-    const convertType = "FILES"
+    let convertType = "FILES";
+    convertType = "STREAMS";
     if (convertType === "FILES") {
-        await convertToMp3AllFiles(id, progress[id].length);
+        await convertToMp3AllFiles(id, progress[id]!.length!);
         await glueMp3Files(progress, id);
     } else if (convertType === "STREAMS") {
         await glueFileStreams(progress, id);
@@ -72,18 +74,17 @@ async function glueMp3Files(progress: ProgressType, id: string) {
 
 // ======================= STREAMS implementation
 
-async function convertFileStreams(id: string, length: number) {
-
-}
-
+//https://github.com/fluent-ffmpeg/node-fluent-ffmpeg/issues/536 - no chance to fix it
 async function glueFileStreams(progress: ProgressType, id: string) {
     console.log("converting files...");
     // const files = await glob(`${bookRunsPath}/${id}` + '/**/test.wav', {ignore: 'node_modules/**'})
-    console.log("(progress[id].fileBuffers = ", progress[id].fileBuffers);
+    // console.log("(progress[id].fileBuffers = ", progress[id].fileBuffers);
 
     const ffmpegProcess = ffmpeg();
-    for (let i = 0; i < progress[id].length; ++i) {
-        const inputPath = fluentFfmpegUtil.handleInputStream(Readable.from(progress[id].fileBuffers[i])).path;
+    for (let i = 0; i < progress[id]!.length!; ++i) {
+        // const inputPath = fluentFfmpegUtil.handleInputStream(Readable.from(progress[id].fileBuffers[i])).path;
+        var fs = require('fs');
+        const inputPath = fluentFfmpegUtil.handleInputStream(fs.createReadStream(`${bookRunsPath}/${id}/${i}/test.wav`)).path;
         console.log("inputPath=" + inputPath);
         ffmpegProcess.addInput(inputPath);
     }
@@ -91,9 +92,11 @@ async function glueFileStreams(progress: ProgressType, id: string) {
     progress[id].outputStream = outputStream;
     console.log("start process");
     await new Promise(((resolve, reject) => {
+        ffmpegProcess.inputFormat("concat")
         ffmpegProcess
             .on("error", (err) => reject(err))
             .on("end", () => resolve("ok"))
+            // .mergeToFile(outputStream)
             .concatenate(outputStream);
     }));
 }
