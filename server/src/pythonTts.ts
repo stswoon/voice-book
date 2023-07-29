@@ -52,7 +52,7 @@ function tts(text: string, cwd: string): Promise<void> {
         pythonProcess.stderr.on('data', (data: Buffer) => {
             console.error("Error from python");
             console.error(data.toString());
-            reject(new Error("Python failed"))
+            //reject(new Error("Python failed")) //for case NNPACK
         });
         pythonProcess.on('close', (code: number) => {
             console.log(`Python child process exited with code ${code}`);
