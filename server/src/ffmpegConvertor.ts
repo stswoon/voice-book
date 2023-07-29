@@ -17,6 +17,9 @@ ffmpeg.setFfprobePath(ffprobeInstaller.path);
 export async function glueFiles(progress: ProgressType, id: string) {
     let convertType = "FILES";
     // convertType = "STREAMS";
+
+    await new Promise(resolve => setTimeout(() => resolve(), 5000));
+
     if (convertType === "FILES") {
         await convertToMp3AllFiles(id, progress[id]!.length!);
         await glueMp3Files(progress, id);
