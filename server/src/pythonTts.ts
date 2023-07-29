@@ -22,6 +22,10 @@ export async function generateAudios(progress: ProgressType, textItems: string[]
             console.log(`run task ${i}`);
             await copyPython(textItems[i], `${bookRunsPath}/${id}/${i}`);
             await tts(textItems[i], `${bookRunsPath}/${id}/${i}`);
+            if (!(await fse.exists(`${bookRunsPath}/${id}/${i}/test.wav`))) {
+                console.warn(`WARN: file not created so run tss step again for ${i}`);
+                await tts(textItems[i], `${bookRunsPath}/${id}/${i}`);
+            }
             //progress[id].fileBuffers[i] = await fse.readFile(`${bookRunsPath}/${id}/${i}/test.wav`);
             progress[id].status = String(Math.round(Number(progress[id].status) + progressDelta));
             console.log(`finish task ${i}`);
