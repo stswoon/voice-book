@@ -50,7 +50,11 @@ async function convertToMp3_File(wavFilename: string) {
             .on("error", (err) => reject(err))
             .on("end", () => resolve(outputFile))
             .save(outputFile);
-    });
+    })
+        .catch(cause => {
+            console.error("convert fail" + cause);
+            throw cause;
+        });
 }
 
 async function glueMp3Files(progress: ProgressType, id: string) {
