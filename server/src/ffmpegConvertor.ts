@@ -19,7 +19,7 @@ export async function glueFiles(progress: ProgressType, id: string) {
     // convertType = "STREAMS";
 
     //wait for file creation after lat python
-    await new Promise(resolve => setTimeout(() => resolve(), 5000));
+    await new Promise<void>((resolve) => setTimeout(() => resolve(), 5000));
 
     if (convertType === "FILES") {
         await convertToMp3AllFiles(id, progress[id]!.length!);
