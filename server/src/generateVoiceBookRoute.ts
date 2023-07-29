@@ -20,7 +20,8 @@ generateVoiceBookRoutes.post("/", async (req, res) => {
             .then(() => progress[id].status = "ready")
             .catch(cause => {
                 progress[id].status = "error";
-                console.error("Error::" + cause);
+                console.error("Error-runVoiceBook::" + cause);
+                console.error(cause);
             });
         return res.status(200).json({processId: id, status: progress[id].status});
     } catch (error) {
