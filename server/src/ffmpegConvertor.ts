@@ -18,6 +18,7 @@ export async function glueFiles(progress: ProgressType, id: string) {
     let convertType = "FILES";
     // convertType = "STREAMS";
 
+    //wait for file creation after lat python
     await new Promise(resolve => setTimeout(() => resolve(), 5000));
 
     if (convertType === "FILES") {
