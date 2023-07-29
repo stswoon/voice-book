@@ -4,7 +4,7 @@ import {Task, TaskPool} from "@antmind/task-pool";
 import {spawn} from "child_process";
 import {bookRunsPath, ProgressType} from "./globalProgress";
 
-const POOL_LIMIT = 2;
+const POOL_LIMIT = 1;
 
 export async function generateAudios(progress: ProgressType, textItems: string[], id: string): Promise<void> {
     console.log("generateAudios::id=" + id);
