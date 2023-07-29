@@ -53,6 +53,7 @@ async function convertToMp3_File(wavFilename: string) {
     })
         .catch(cause => {
             console.error("convert fail" + cause);
+            console.error(cause);
             throw cause;
         });
 }
