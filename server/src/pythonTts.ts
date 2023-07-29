@@ -25,6 +25,13 @@ export async function generateAudios(progress: ProgressType, textItems: string[]
             if (!(await fse.exists(`${bookRunsPath}/${id}/${i}/test.wav`))) {
                 console.warn(`WARN: file not created so run tss step again for ${i}`);
                 await tts(textItems[i], `${bookRunsPath}/${id}/${i}`);
+                if (!(await fse.exists(`${bookRunsPath}/${id}/${i}/test.wav`))) {
+                    console.warn(`WARN: file not created AGAIN, so give tss step FINAL try for ${i}`);
+                    await tts(textItems[i], `${bookRunsPath}/${id}/${i}`);
+                    if (!(await fse.exists(`${bookRunsPath}/${id}/${i}/test.wav`))) {
+                        throw Error(`CANNOT do tss for ${i}`);
+                    }
+                }
             }
             //progress[id].fileBuffers[i] = await fse.readFile(`${bookRunsPath}/${id}/${i}/test.wav`);
             progress[id].status = String(Math.round(Number(progress[id].status) + progressDelta));

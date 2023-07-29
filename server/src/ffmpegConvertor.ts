@@ -47,12 +47,16 @@ async function convertToMp3_File(wavFilename: string) {
     return new Promise((resolve, reject) => {
         const outputFile = wavFilename.replace(".wav", ".mp3");
         ffmpeg({source: wavFilename})
-            .on("error", (err) => reject(err))
+            .on("error", (err) => {
+                console.error("convert fail " + err);
+                console.error(err);
+                reject(err)
+            })
             .on("end", () => resolve(outputFile))
             .save(outputFile);
     })
         .catch(cause => {
-            console.error("convert fail" + cause);
+            console.error("convert fail " + cause);
             console.error(cause);
             throw cause;
         });
