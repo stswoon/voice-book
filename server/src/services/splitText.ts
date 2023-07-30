@@ -10,7 +10,14 @@ export function splitTextSimple(text: string): string[] {
     text = text.replace(/([.?!]+)/g, replacer);
     let items = text.split("${splitter}");
     items = items
-        .map(item => item.trim())
+        .map(item => {
+            let tmp = item.replace(/[^А-Яа-я]*$/gi, '');
+            if (tmp.length === 0) {
+                return "";
+            } else {
+                return item.trim();
+            }
+        })
         .filter(item => item.length !== 0);
 
     // text = text.trim();

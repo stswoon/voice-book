@@ -45,7 +45,7 @@ export abstract class AbstractComponent extends HTMLElement {
     private rendered: boolean = false;
 
     //@ts-ignore
-    protected connectedCallback(): void {
+    private connectedCallback(): void {
         if (this.rendered) return;
         this.rendered = true;
         this.render();
