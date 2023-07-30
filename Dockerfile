@@ -9,7 +9,7 @@ COPY client client
 COPY server server
 COPY package.json ./
 COPY package-lock.json ./
-RUN npm run build && npm run start
+RUN npm run build
 
 EXPOSE ${PORT}
 CMD ["node", "server/dist/server.js"]
