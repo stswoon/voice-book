@@ -1,0 +1,17 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+}
+
+.opa-content > .opa-content_controls {
+    display: flex;
+    align-items: center;
+}
+
+.opa-content > .opa-content_controls > * {
+    min-width: 100px;
+    max-width: 200px;
+}

@@ -45,7 +45,7 @@ export async function generateAudios(progress: ProgressType, textItems: string[]
 
 async function copyPython(text: string, textItemPath: string): Promise<void> {
     await fse.mkdir(textItemPath);
-    await fse.copyFile(`${__dirname}/../../python/silerotest.py`, `${textItemPath}/silerotest.py`);
+    await fse.copyFile(`${bookRunsPath}/../silerotest.py`, `${textItemPath}/silerotest.py`);
 }
 
 function tts(text: string, cwd: string): Promise<void> {
