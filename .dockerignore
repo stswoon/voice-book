@@ -1,4 +1,5 @@
 server/dist
 server/node_modules
-server/src/**/*.spec.ts
+client/dist
+client/node_modules
 python/bookRuns

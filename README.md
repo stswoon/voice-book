@@ -10,6 +10,4 @@ docker build . -t voice-book:0.0.1
 
 
 
-TODO more fancy ui
-TODO prettify code
 TODO docs

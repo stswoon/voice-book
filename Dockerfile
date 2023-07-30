@@ -5,8 +5,11 @@ FROM stswoon/python-nodejs-silero:python3.9-nodejs18-silero0.4.11
 
 WORKDIR /app
 COPY python python
+COPY client client
 COPY server server
-RUN cd server && npm ci && npm run build
+COPY package.json ./
+COPY package-lock.json ./
+RUN npm run build
 
 EXPOSE ${PORT}
 CMD ["node", "server/dist/server.js"]

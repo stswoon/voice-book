@@ -1,30 +1,40 @@
 import {Router} from "express";
 import {uniqueNamesGenerator, adjectives, colors, animals} from "unique-names-generator";
-import {translitToRussian} from "./textTranslits";
-import {progress, startRemoveInterval} from "./globalProgress";
-import {splitTextSimple} from "./splitText";
-import {generateAudios} from "./pythonTts";
-import {glueFiles} from "./ffmpegConvertor";
+import {translitToRussian} from "../services/textTranslits";
+import {progress, startRemoveInterval} from "../services/globalProgress";
+import {splitTextSimple} from "../services/splitText";
+import {generateAudios} from "../services/pythonTts";
+import {glueFiles} from "../services/ffmpegConvertor";
 
-
-// startRemoveInterval();
+startRemoveInterval();
 
 export const generateVoiceBookRoutes = Router();
 
+let isInProgress = false;
+
 generateVoiceBookRoutes.post("/", async (req, res) => {
+    if (isInProgress) {
+        return res.status(409).json({error: "Sorry, only one queue is supported now"});
+    }
     const id = generateName();
     try {
         const text = req.body.text;
         progress[id] = {status: 'queue 1/1', startDate: (new Date()).getTime(), fileBuffers: {}}; //todo queue progress
+        isInProgress = true;
         runVoiceBook(id, text)
-            .then(() => progress[id].status = "ready")
+            .then(() => {
+                progress[id].status = "ready"
+                isInProgress = false;
+            })
             .catch(cause => {
+                isInProgress = false;
                 progress[id].status = "error";
                 console.error("Error-runVoiceBook::" + cause);
                 console.error(cause);
             });
         return res.status(200).json({processId: id, status: progress[id].status});
     } catch (error) {
+        isInProgress = false;
         progress[id].status = "error";
         console.error(error);
         return res.status(500).json({error: "Sorry, something went wrong"});
