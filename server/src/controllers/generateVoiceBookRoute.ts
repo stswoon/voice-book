@@ -2,7 +2,7 @@ import {Router} from "express";
 import {uniqueNamesGenerator, adjectives, colors, animals} from "unique-names-generator";
 import {translitToRussian} from "../services/textTranslits";
 import {progress, startRemoveInterval} from "../services/globalProgress";
-import {splitTextSimple} from "../services/splitText";
+import {splitText, splitTextSimple} from "../services/splitText";
 import {generateAudios} from "../services/pythonTts";
 import {glueFiles} from "../services/ffmpegConvertor";
 
@@ -45,8 +45,8 @@ const generateName = (): string => uniqueNamesGenerator({dictionaries: [adjectiv
 
 async function runVoiceBook(id: string, text: string): Promise<void> {
     text = translitToRussian(text);
-    // const textItems = splitText(text, SILERO_MAX_LEN);
-    const textItems = splitTextSimple(text);
+    const textItems = splitText(text);
+    // const textItems = splitTextSimple(text);
     if (textItems.length === 0) {
         progress[id].status = "error";
         console.error("empty text");

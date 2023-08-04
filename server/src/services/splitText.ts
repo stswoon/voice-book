@@ -11,8 +11,8 @@ export function splitTextSimple(text: string): string[] {
     let items = text.split("${splitter}");
     items = items
         .map(item => {
-            let tmp = item.replace(/[^А-Яа-я]*$/gi, '');
-            if (tmp.length === 0) {
+            let tmp = item.replace(/[A-Za-zА-Яа-я]*/gi, '');
+            if (tmp.length === item.length) {
                 return "";
             } else {
                 return item.trim();
@@ -26,9 +26,7 @@ export function splitTextSimple(text: string): string[] {
     //     return item.trim().length !== 0;
     // });
     return items;
-    //TODO trim non alphabet
     //TODO use MAX_SILERO
-    //TODO show errors on user screen
 }
 
 export function splitText(text: string, maxLen: number = SILERO_MAX_LEN): string[] {
