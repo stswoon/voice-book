@@ -1,7 +1,7 @@
 import express, {NextFunction, Request, Response} from "express";
 import compression from "compression";
 
-import {generateVoiceBookRoutes} from "./controllers/generateVoiceBookRoute";
+import {voiceBookRoutes} from "./controllers/generateVoiceBookRoute";
 
 var cors = require('cors');
 
@@ -21,7 +21,7 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction): void =>
 
 app.get("/health", (req: Request, res: Response) => res.send("OK"));
 
-app.use("/api/generateVoiceBook", generateVoiceBookRoutes);
+app.use("/api/voiceBook", voiceBookRoutes);
 
 const staticDir = __dirname + "/../../client/dist";
 console.log("staticDir=" + staticDir);

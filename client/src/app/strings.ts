@@ -1,5 +1,6 @@
 export const strings = {
     send: "Send",
-    download: "Download"
+    download: "Download",
+    cancel: "Cancel"
 };
 

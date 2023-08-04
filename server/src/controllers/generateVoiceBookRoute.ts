@@ -2,17 +2,17 @@ import {Router} from "express";
 import {uniqueNamesGenerator, adjectives, colors, animals} from "unique-names-generator";
 import {translitToRussian} from "../services/textTranslits";
 import {progress, startRemoveInterval} from "../services/globalProgress";
-import {splitTextSimple} from "../services/splitText";
+import {splitText, splitTextSimple} from "../services/splitText";
 import {generateAudios} from "../services/pythonTts";
 import {glueFiles} from "../services/ffmpegConvertor";
 
 startRemoveInterval();
 
-export const generateVoiceBookRoutes = Router();
+export const voiceBookRoutes = Router();
 
 let isInProgress = false;
 
-generateVoiceBookRoutes.post("/", async (req, res) => {
+voiceBookRoutes.post("/generate", async (req, res) => {
     if (isInProgress) {
         return res.status(409).json({error: "Sorry, only one queue is supported now"});
     }
@@ -45,8 +45,8 @@ const generateName = (): string => uniqueNamesGenerator({dictionaries: [adjectiv
 
 async function runVoiceBook(id: string, text: string): Promise<void> {
     text = translitToRussian(text);
-    // const textItems = splitText(text, SILERO_MAX_LEN);
-    const textItems = splitTextSimple(text);
+    const textItems = splitText(text);
+    // const textItems = splitTextSimple(text);
     if (textItems.length === 0) {
         progress[id].status = "error";
         console.error("empty text");
@@ -58,7 +58,7 @@ async function runVoiceBook(id: string, text: string): Promise<void> {
     progress[id].status = "ready";
 }
 
-generateVoiceBookRoutes.get("/:id", async (req, res) => {
+voiceBookRoutes.get("/:id/download", async (req, res) => {
     const id = req.params.id;
     if (progress[id].outputFilePath) {
         return res.download(progress[id]!.outputFilePath!);
@@ -70,7 +70,7 @@ generateVoiceBookRoutes.get("/:id", async (req, res) => {
     }
 });
 
-generateVoiceBookRoutes.get("/progress/:id", async (req, res) => {
+voiceBookRoutes.get("/:id/progress", async (req, res) => {
     const id = req.params.id;
     if (progress[id] == null) {
         return res.status(404).json({processId: id, status: "notExist"});

@@ -34,7 +34,7 @@ export async function generateAudios(progress: ProgressType, textItems: string[]
                 }
             }
             //progress[id].fileBuffers[i] = await fse.readFile(`${bookRunsPath}/${id}/${i}/test.wav`);
-            progress[id].status = String(Math.round(Number(progress[id].status) + progressDelta));
+            progress[id].status = String(Math.round((Number(progress[id].status) + progressDelta) * 10) / 10);
             console.log(`finish task ${i}`);
         }, i);
         pool.addTask(task);
