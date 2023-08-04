@@ -17,6 +17,12 @@ export default defineConfig({
                     APP_VERSION: packageJson.version,
                 }
             }
-        }),
-    ]
+        })
+    ],
+    server: {
+        proxy: {
+            "/api": "http://localhost:3000"
+        }
+    }
+
 });

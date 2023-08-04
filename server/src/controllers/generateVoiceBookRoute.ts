@@ -8,11 +8,11 @@ import {glueFiles} from "../services/ffmpegConvertor";
 
 startRemoveInterval();
 
-export const generateVoiceBookRoutes = Router();
+export const voiceBookRoutes = Router();
 
 let isInProgress = false;
 
-generateVoiceBookRoutes.post("/", async (req, res) => {
+voiceBookRoutes.post("/generate", async (req, res) => {
     if (isInProgress) {
         return res.status(409).json({error: "Sorry, only one queue is supported now"});
     }
@@ -58,7 +58,7 @@ async function runVoiceBook(id: string, text: string): Promise<void> {
     progress[id].status = "ready";
 }
 
-generateVoiceBookRoutes.get("/:id", async (req, res) => {
+voiceBookRoutes.get("/:id/download", async (req, res) => {
     const id = req.params.id;
     if (progress[id].outputFilePath) {
         return res.download(progress[id]!.outputFilePath!);
@@ -70,7 +70,7 @@ generateVoiceBookRoutes.get("/:id", async (req, res) => {
     }
 });
 
-generateVoiceBookRoutes.get("/progress/:id", async (req, res) => {
+voiceBookRoutes.get("/:id/progress", async (req, res) => {
     const id = req.params.id;
     if (progress[id] == null) {
         return res.status(404).json({processId: id, status: "notExist"});

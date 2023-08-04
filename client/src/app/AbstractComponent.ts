@@ -9,14 +9,14 @@ export const interpolateTemplateString = (s: string, params: object): string => 
     return new Function(...names, `return \`${s}\`;`)(...vals);
 }
 
-export type templateTypeFunction = (params: any) => string;
+export type Template<T> = (params: T) => string;
 
 //https://learn.javascript.ru/custom-elements
 export abstract class AbstractComponent extends HTMLElement {
-    protected readonly template: templateTypeFunction;
+    protected readonly template: Template<any>;
     protected state: any = {};
 
-    protected constructor(template: templateTypeFunction, state?: any) {
+    protected constructor(template: Template<any>, state?: any) {
         super();
         this.template = template;
         this.state = state || {};
