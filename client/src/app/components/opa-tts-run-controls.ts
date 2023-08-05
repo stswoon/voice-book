@@ -19,21 +19,22 @@ const template: Template<any> = (params) => {
         disableDownloadBtn: params.disabledownloadbtn === "true",
         progress: params.progress == "null" ? null : Number(params.progress)
     }
+    //TODO move menu
     return `
         <div class="opa-tts-run-controls" x-data='{ state:${JSON.stringify(state)} }'>
             <div>
-                <ui5-button id="btnOpenTestTextsMenu">Testing Texts</ui5-button>
+                <ui5-button id="btnOpenTestTextsMenu">${strings().OpaTestTextMenu.menuTitle}</ui5-button>
                 <ui5-menu>
-                    <ui5-menu-item text="Greetings" id="testTextsMenu_Greetings"></ui5-menu-item>
-                    <ui5-menu-item text="Hello World" id="testTextsMenu_HelloWorld"></ui5-menu-item>
-                    <ui5-menu-item text="Three Pigs" id="testTextsMenu_ThreePigs"></ui5-menu-item>
+                    <ui5-menu-item text="${strings().OpaTestTextMenu.itemGreetings}" id="testTextsMenu_Greetings"></ui5-menu-item>
+                    <ui5-menu-item text="${strings().OpaTestTextMenu.itemHelloWorld}" id="testTextsMenu_HelloWorld"></ui5-menu-item>
+                    <ui5-menu-item text="${strings().OpaTestTextMenu.itemThreePigs}" id="testTextsMenu_ThreePigs"></ui5-menu-item>
                 </ui5-menu>
             </div>
-            <ui5-button design="Emphasized" x-bind:disabled="state.disableSendBtn" @click="AppService.send()">${strings.send}</ui5-button>
+            <ui5-button design="Emphasized" x-bind:disabled="state.disableSendBtn" @click="AppService.send()">${strings().OpaTtsRunControls.send}</ui5-button>
             <ui5-busy-indicator x-show="state.progress != null" size="Small" delay="0" active></ui5-busy-indicator>
-            <ui5-button x-bind:disabled="state.disableCancelBtn" @click="AppService.cancel()">${strings.cancel}</ui5-button>
+            <ui5-button x-bind:disabled="state.disableCancelBtn" @click="AppService.cancel()">${strings().OpaTtsRunControls.cancel}</ui5-button>
             <ui5-progress-indicator x-show="state.progress != null" x-bind:value="state.progress"></ui5-progress-indicator>
-            <ui5-button x-bind:disabled="state.disableDownloadBtn" @click="AppService.download()">${strings.download}</ui5-button>
+            <ui5-button x-bind:disabled="state.disableDownloadBtn" @click="AppService.download()">${strings().OpaTtsRunControls.download}</ui5-button>
         </div>
     `;
     //<ui5-label x-show="state.processId">Id: ${state.processId}</ui5-label>

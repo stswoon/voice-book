@@ -13,6 +13,10 @@ body {
     margin: 0 auto;
 }
 
+opa-header {
+    display: flex;
+    align-items: center;
+}
 
 opa-text-controls {
     height: calc(100vh - 150px - 36px - 42px - 20px - 20px);
@@ -59,6 +63,13 @@ opa-ads > .opa-ads_donate > div > a {
     margin-left: 5px;
 }
 
-opa-ads > .opa-ads_yandex {
-    /*max-height: 150px;*/
+opa-cookie-accept {
+    position: absolute;
+    background: #e3eefb;
+    bottom: 30px;
+    right: 0;
+}
+
+opa-cookie-accept > div {
+    padding: 20px;
 }

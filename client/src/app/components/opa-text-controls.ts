@@ -34,3 +34,10 @@ class OpaTextControls extends AbstractComponent {
 }
 
 customElements.define("opa-text-controls", OpaTextControls);
+
+
+//TODO split on charapters
+//TODO count of syumbols
+
+//TODO registration for > 1000 symbols
+//TODO notification you use app 10, 50, 100, 500, 1000 - leave feedback on social network. YOu convert 100k,200k,300k (a book) so saved about 300r please donate me a bit

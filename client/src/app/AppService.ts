@@ -1,4 +1,5 @@
 import {testData0} from "./components/testData.ts";
+import {strings} from "./strings.ts";
 
 const ROUTES = {
     generate: "/api/voiceBook/generate",
@@ -90,7 +91,7 @@ const send = async (processId?: string): Promise<void> => {
     } catch (cause) {
         console.error("AppService.send::failed, cause=", cause);
         setButtonsVisibility(null, false, true, true);
-        toast(`Error during processing text for process ${processId}`);
+        toast(strings().AppServiceToasts.errorSendToast.replace("{processId}", processId));
         setProcessId(null);
     }
 }
@@ -127,7 +128,7 @@ const init = (): void => {
     const processId = getProcessId();
     if (processId) {
         setProcessId(processId)
-        toast("Getting status for previous process, processId=" + processId);
+        toast(strings().AppServiceToasts.initGetStatusToast.replace("{processId}", processId));
         send(processId);
     } else {
         setButtonsVisibility(null, false, true, true);
@@ -138,15 +139,27 @@ const cancel = (): void => {
     console.log("AppService.cancel");
     fetch(ROUTES.cancel.replace("{processId}", getProcessId()), {method: "DELETE"}).catch(e => {
         console.error("Failed cancel process", e);
-        toast("Failed cancel process");
+        toast(strings().AppServiceToasts.errorCancelToast);
     });
     clearTimeout(pollingTimerId);
     setProcessId(null);
     setButtonsVisibility(null, false, true, true);
 };
 
+const getLang = (): string => {
+    let lang = window.navigator.language; //TODO set lang
+    if (lang.length > 2) {
+        lang = lang[0] + lang[1];
+    }
+    if (lang === "ru") {
+        return "ru";
+    } else {
+        return "en";
+    }
+}
+
 export const AppService = {
-    setText, send, init, download, cancel
+    setText, send, init, download, cancel, getLang
 };
 
 

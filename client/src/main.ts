@@ -14,6 +14,7 @@ import "./app/components/opa-header"
 import "./app/components/opa-tts-run-controls"
 import "./app/components/opa-text-controls.ts"
 import "./app/components/opa-ads.ts"
+import "./app/components/opa-cookie-accept.ts"
 
 import "./style.css"
 
