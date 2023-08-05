@@ -78,3 +78,14 @@ voiceBookRoutes.get("/:id/progress", async (req, res) => {
         return res.status(200).json({processId: id, status: progress[id].status});
     }
 });
+
+voiceBookRoutes.delete("/:id/cancel", async (req, res) => {
+    const id = req.params.id;
+    if (progress[id] == null) {
+        return res.status(404).json({processId: id, status: "notExist"});
+    } else {
+        progress[id].cancel = true;
+        console.log(`Terminating processId=${id}`);
+        return res.status(200).json({processId: id, status: "terminating..."});
+    }
+});

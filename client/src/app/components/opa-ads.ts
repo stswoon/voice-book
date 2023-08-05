@@ -1,11 +1,14 @@
 import {AbstractComponent} from "../AbstractComponent";
 
 const template = () => `
-<div>
-     Donate me
+<div class="opa-ads_donate">
+    <div>
+        If you like app you can <a href="https://yoomoney.ru/to/41001998657825">DONATE</a> me.
+        Sorry for ads but I need 7$/mo to maintain server.
+    </div>
 </div>
-<div>
-     Please allow add-block to show ads because I need at least 7$\mo for server maintain.
+<div class="opa-ads_yandex">
+<!--     Please allow add-block to show ads because I need at least 7$\mo for server maintain.-->
 </div>
 `;
 

@@ -7,17 +7,16 @@ interface OpaTtsRunControlsState {
     disableSendBtn: boolean;
     disableCancelBtn: boolean;
     disableDownloadBtn: boolean;
-    processId: string;
+    // processId: string;
     // queueStatus: string;
     progress: number;
 }
 
 const template: Template<any> = (params) => {
     const state: OpaTtsRunControlsState = {
-        disableSendBtn: params.disablesendbtn === "true",
+        disableSendBtn: params.disablesendbtn === "true", //TODO to lovercase in abstractcomponent
         disableCancelBtn: params.disablecancelbtn === "true",
         disableDownloadBtn: params.disabledownloadbtn === "true",
-        processId: params.processid == "null" ? null : params.processid,
         progress: params.progress == "null" ? null : Number(params.progress)
     }
     return `
@@ -31,12 +30,13 @@ const template: Template<any> = (params) => {
                 </ui5-menu>
             </div>
             <ui5-button design="Emphasized" x-bind:disabled="state.disableSendBtn" @click="AppService.send()">${strings.send}</ui5-button>
-            <ui5-label x-show="state.processId">Id: ${state.processId}</ui5-label>
+            <ui5-busy-indicator x-show="state.progress != null" size="Small" delay="0" active></ui5-busy-indicator>
             <ui5-button x-bind:disabled="state.disableCancelBtn" @click="AppService.cancel()">${strings.cancel}</ui5-button>
             <ui5-progress-indicator x-show="state.progress != null" x-bind:value="state.progress"></ui5-progress-indicator>
             <ui5-button x-bind:disabled="state.disableDownloadBtn" @click="AppService.download()">${strings.download}</ui5-button>
         </div>
     `;
+    //<ui5-label x-show="state.processId">Id: ${state.processId}</ui5-label>
     //<ui5-label x-show="state.queueStatus != null">Queue: ${state.queueStatus}</ui5-label>
 };
 
@@ -67,7 +67,7 @@ class OpaTtsRunControls extends AbstractComponent {
     }
 
     static get observedAttributes(): string[] {
-        return ["disablesendbtn", "disablecancelbtn", "disabledownloadbtn", "processid", "progress"];
+        return ["disablesendbtn", "disablecancelbtn", "disabledownloadbtn", "progress"];
     }
 }
 

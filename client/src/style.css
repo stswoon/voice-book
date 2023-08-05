@@ -13,10 +13,6 @@ body {
     margin: 0 auto;
 }
 
-opa-ads {
-    height: 150px;
-    display: block;
-}
 
 opa-text-controls {
     height: calc(100vh - 150px - 36px - 42px - 20px - 20px);
@@ -35,6 +31,34 @@ opa-tts-run-controls > .opa-tts-run-controls {
 }
 
 opa-tts-run-controls > .opa-tts-run-controls > * {
-    min-width: 100px;
-    max-width: 250px;
+    min-width: 50px;
+    max-width: 200px;
+}
+
+opa-ads {
+    display: block;
+    height: 150px;
+}
+
+opa-ads > .opa-ads_donate {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+opa-ads > .opa-ads_donate > div {
+    background: #e3eefb;
+    padding: 10px;
+    margin: 5px 10px;
+    display: inline-block;
+}
+
+opa-ads > .opa-ads_donate > div > a {
+    background: #eedd73;
+    padding: 3px;
+    margin-left: 5px;
+}
+
+opa-ads > .opa-ads_yandex {
+    /*max-height: 150px;*/
 }

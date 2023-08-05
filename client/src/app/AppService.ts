@@ -12,9 +12,11 @@ const toast = (message: string) => {
     (window as any).toastManager.show();
 };
 
-const setText = (text: string): void => {
+const setText = (text: string, onlyLocalStorage?: boolean): void => {
     localStorage.setItem("text", text);
-    document.querySelector("opa-text-controls").setAttribute("text", text);
+    if (!onlyLocalStorage) {
+        document.querySelector("opa-text-controls").setAttribute("text", text);
+    }
 };
 const getText = (): string => localStorage.getItem("text");
 
@@ -28,10 +30,11 @@ const setProcessId = (processId: string): void => {
 }
 const getProcessId = (): string => localStorage.getItem("processId");
 
+let pollingTimerId: any;
 const POLLING_PERIOD = 5000;
 const polling = async (processId: string, processStatus: (status: string) => boolean, notFirst?: boolean): Promise<void> => {
     return new Promise((resolve, reject) => {
-        setTimeout(async () => {
+        pollingTimerId = setTimeout(async () => {
             try {
                 const response = await fetch(ROUTES.progress.replace("{processId}", processId)).then(res => res.json());
                 const continueFlag = processStatus(response.status)
@@ -87,8 +90,8 @@ const send = async (processId?: string): Promise<void> => {
     } catch (cause) {
         console.error("AppService.send::failed, cause=", cause);
         setButtonsVisibility(null, false, true, true);
+        toast(`Error during processing text for process ${processId}`);
         setProcessId(null);
-        toast("Error during processing text");
     }
 }
 
@@ -131,8 +134,19 @@ const init = (): void => {
     }
 };
 
+const cancel = (): void => {
+    console.log("AppService.cancel");
+    fetch(ROUTES.cancel.replace("{processId}", getProcessId()), {method: "DELETE"}).catch(e => {
+        console.error("Failed cancel process", e);
+        toast("Failed cancel process");
+    });
+    clearTimeout(pollingTimerId);
+    setProcessId(null);
+    setButtonsVisibility(null, false, true, true);
+};
+
 export const AppService = {
-    setText, send, init, download
+    setText, send, init, download, cancel
 };
 
 

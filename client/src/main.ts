@@ -8,6 +8,7 @@ import "@ui5/webcomponents/dist/ProgressIndicator";
 import "@ui5/webcomponents/dist/Menu";
 import "@ui5/webcomponents/dist/MenuItem";
 import "@ui5/webcomponents/dist/TextArea"
+import "@ui5/webcomponents/dist/BusyIndicator";
 
 import "./app/components/opa-header"
 import "./app/components/opa-tts-run-controls"

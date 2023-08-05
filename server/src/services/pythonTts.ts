@@ -1,5 +1,4 @@
 import fse from "fs-extra";
-import {glob} from "glob";
 import {Task, TaskPool} from "@antmind/task-pool";
 import {spawn} from "child_process";
 import {bookRunsPath, ProgressType} from "./globalProgress";
@@ -19,6 +18,10 @@ export async function generateAudios(progress: ProgressType, textItems: string[]
     const pool = new TaskPool({concurrency: POOL_LIMIT});
     for (let i = 0; i < textItems.length; ++i) {
         const task = new Task(async (i: any) => {
+            if (progress[id].cancel) {
+                console.log(`cancel task`);
+                return;
+            }
             console.log(`run task ${i}`);
             await copyPython(textItems[i], `${bookRunsPath}/${id}/${i}`);
             await tts(textItems[i], `${bookRunsPath}/${id}/${i}`);

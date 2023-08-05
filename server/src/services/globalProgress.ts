@@ -13,6 +13,7 @@ export type ProgressType = {
         }
         outputStream?: Stream;
         outputFilePath?: string;
+        cancel?: boolean
     }
 }
 export const progress: ProgressType = {};  //id, {status, date}
