@@ -60,7 +60,7 @@ opa-ads > .opa-ads_donate > div {
     text-wrap: nowrap;
 }
 
-opa-ads > opa-ads_yandex {
+opa-ads > .opa-ads_yandex {
     height: 100px;
 }
 
