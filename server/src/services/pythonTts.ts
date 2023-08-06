@@ -60,11 +60,11 @@ function tts(text: string, cwd: string): Promise<void> {
         // const spawn = require("child_process").spawn;
         const pythonProcess = spawn('python', ["silerotest.py", '"' + text + '"'], {cwd});
         pythonProcess.stdout.on('data', (data: Buffer) => {
-            console.log("Logs from python");
-            console.log(data.toString());
+            //console.log("Logs from python");
+            //console.log(data.toString());
         });
         pythonProcess.stderr.on('data', (data: Buffer) => {
-            console.error("Error from python");
+            console.error("ERROR FROM PYTHON");
             console.error(data.toString());
             //reject(new Error("Python failed")) //for case NNPACK
         });
@@ -73,7 +73,7 @@ function tts(text: string, cwd: string): Promise<void> {
             if (code === 0 || code == null) { // https://superfastpython.com/exit-codes-in-python/
                 resolve();
             } else {
-                reject("Python child process exited with error");
+                reject("Python child process exited with ERROR");
             }
         });
     });

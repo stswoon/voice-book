@@ -1,6 +1,5 @@
 import {AbstractComponent} from "../AbstractComponent";
 import {strings} from "../strings.ts";
-import {loadScript} from "../utils.ts";
 
 const template = () => `
 <div class="opa-ads_donate">
@@ -20,15 +19,15 @@ class OpaAds extends AbstractComponent {
 
     protected render() {
         super.render();
-        const W = (window as any);
-        W.yaContextCb = W.yaContextCb || [];
-        W.yaContextCb.push(() => {
-            W.Ya.Context.AdvManager.render({
-                "blockId": "R-A-2572196-1",
-                "renderTo": "yandex_rtb_R-A-2572196-1"
-            })
-        });
-        loadScript("https://yandex.ru/ads/system/context.js");
+        setTimeout(() => {
+            const W = (window as any);
+            W.yaContextCb.push(() => {
+                W.Ya.Context.AdvManager.render({
+                    "blockId": "R-A-2572196-1",
+                    "renderTo": "yandex_rtb_R-A-2572196-1"
+                })
+            });
+        })
     }
 }
 

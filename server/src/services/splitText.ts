@@ -1,4 +1,4 @@
-const SILERO_MAX_LEN = 900; //sometimes fails if near 1000
+const SILERO_MAX_LEN = 800; //sometimes fails if near 1000 end even more then 800
 
 //seems split by sentence is better for sounds
 export function splitTextSimple(text: string): string[] {

@@ -51,3 +51,5 @@ describe('splitText', () => {
         assert.deepStrictEqual(splitText(a + " " + b), [a, b]);
     });
 });
+
+

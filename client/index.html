@@ -9,13 +9,18 @@
     <meta name="description"
           content="This is an application to make text-to-speech. The main idea is to generate voice book from text to listen to while doing some home stuff or during a walk to the job.">
     <meta name="keywords" content="Voice book, Test to Speech, Audio book convertor">
+
+    <!-- Yandex.RTB -->
+    <script>window.yaContextCb=window.yaContextCb||[]</script>
+    <script src="https://yandex.ru/ads/system/context.js" async></script>
+
     <script type="module" src="/src/main.ts" defer></script>
 </head>
 <body>
 
 <div class="layout">
     <ui5-toast id="toastManager" placement="TopCenter"></ui5-toast>
-    <opa-header></opa-header>
+    <opa-header version="<%-APP_VERSION%>"></opa-header>
     <opa-tts-run-controls></opa-tts-run-controls>
     <opa-ads></opa-ads>
     <opa-text-controls></opa-text-controls>

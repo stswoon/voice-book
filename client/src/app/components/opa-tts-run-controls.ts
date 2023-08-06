@@ -17,7 +17,7 @@ const template: Template<any> = (params) => {
         disableSendBtn: params.disablesendbtn === "true", //TODO to lovercase in abstractcomponent
         disableCancelBtn: params.disablecancelbtn === "true",
         disableDownloadBtn: params.disabledownloadbtn === "true",
-        progress: params.progress == "null" ? null : Number(params.progress)
+        progress: params.progress == "null" ? null : Math.round(Number(params.progress))
     }
     //TODO move menu
     return `
