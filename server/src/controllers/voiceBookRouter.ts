@@ -1,18 +1,18 @@
 import {Router} from "express";
 import {uniqueNamesGenerator, adjectives, colors, animals} from "unique-names-generator";
 import {translitToRussian} from "../services/textTranslits";
-import {progress, startRemoveInterval} from "../services/globalProgress";
 import {splitText, splitTextSimple} from "../services/splitText";
 import {generateAudios} from "../services/pythonTts";
 import {glueFiles} from "../services/ffmpegConvertor";
+import {voiceBookService} from "../services/voiceBookService";
 
-startRemoveInterval();
+voiceBookService.init();
 
-export const voiceBookRoutes = Router();
+export const voiceBookRouter = Router();
 
 let isInProgress = false;
 
-voiceBookRoutes.post("/generate", async (req, res) => {
+voiceBookRouter.post("/generate", async (req, res) => {
     if (isInProgress) {
         return res.status(409).json({error: "Sorry, only one queue is supported now"});
     }
@@ -58,7 +58,7 @@ async function runVoiceBook(id: string, text: string): Promise<void> {
     progress[id].status = "ready";
 }
 
-voiceBookRoutes.get("/:id/download", async (req, res) => {
+voiceBookRouter.get("/:id/download", async (req, res) => {
     const id = req.params.id;
     if (progress[id].outputFilePath) {
         return res.download(progress[id]!.outputFilePath!);
@@ -70,7 +70,7 @@ voiceBookRoutes.get("/:id/download", async (req, res) => {
     }
 });
 
-voiceBookRoutes.get("/:id/progress", async (req, res) => {
+voiceBookRouter.get("/:id/progress", async (req, res) => {
     const id = req.params.id;
     if (progress[id] == null) {
         return res.status(404).json({processId: id, status: "notExist"});
@@ -79,7 +79,7 @@ voiceBookRoutes.get("/:id/progress", async (req, res) => {
     }
 });
 
-voiceBookRoutes.delete("/:id/cancel", async (req, res) => {
+voiceBookRouter.delete("/:id/cancel", async (req, res) => {
     const id = req.params.id;
     if (progress[id] == null) {
         return res.status(404).json({processId: id, status: "notExist"});
