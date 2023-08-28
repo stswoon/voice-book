@@ -1,22 +1,29 @@
 import fse from "fs-extra";
 import {Task, TaskPool} from "@antmind/task-pool";
 import {spawn} from "child_process";
-import {bookRunsPath, ProgressType} from "./globalProgress";
+import {bookRunsPath, VoiceProcess} from "./typesAndConsts";
 
-const POOL_LIMIT = 1;
 
-export async function generateAudios(progress: ProgressType, textItems: string[], id: string): Promise<void> {
-    console.log("generateAudios::id=" + id);
+const START_POOL_LIMIT = 1;
+
+async function safeCreateBaseBookRunDirectory(): Promise<void> {
     if (!fse.pathExistsSync(`${bookRunsPath}`)) {
         await fse.mkdir(`${bookRunsPath}`);
     }
+}
+
+export async function generateAudios(voiceProcess: VoiceProcess): Promise<void> {
+    console.log("generateAudios::id=" + voiceProcess.id);
+    await safeCreateBaseBookRunDirectory();
+
+    const id = voiceProcess.id;
     await fse.mkdir(`${bookRunsPath}/${id}`);
+    voiceProcess.progress = 0;
+    const progressDelta = 100 / voiceProcess.textItems.length;
+    const pool = new TaskPool({concurrency: START_POOL_LIMIT});
+    voiceProcess.taskPool = pool;
 
-    progress[id].status = String(0);
-    const progressDelta = 95 / textItems.length;
-
-    const pool = new TaskPool({concurrency: POOL_LIMIT});
-    for (let i = 0; i < textItems.length; ++i) {
+    for (let i = 0; i < voiceProcess.textItems.length; ++i) {
         const task = new Task(async (i: any) => {
             if (progress[id].cancel) {
                 console.log(`cancel task`);
@@ -42,7 +49,9 @@ export async function generateAudios(progress: ProgressType, textItems: string[]
         }, i);
         pool.addTask(task);
     }
+    console.log("pool started");
     await pool.exec();
+    voiceProcess.taskPool = undefined;
     console.log("pool finished");
 }
 

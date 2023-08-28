@@ -3,65 +3,44 @@ import {utils} from "../utils";
 import {translitToRussian} from "./textTranslits";
 import {splitText} from "./splitText";
 import {adjectives, animals, colors, uniqueNamesGenerator} from "unique-names-generator";
-import {generateAudios} from "./pythonTts";
 import {glueFiles} from "./ffmpegConvertor";
+import {generateAudios} from "./ttsService";
+import {
+    MAX_POOL_SIZE,
+    MAX_PROCESS,
+    MAX_QUEUE,
+    MAX_TEXT_LENGTH,
+    QueueItem,
+    VoiceProcess,
+    VoiceProcessStatus
+} from "./typesAndConsts";
+import {bookRunsPath} from "./globalState";
 
 
 export const state: State = {}
 export type State = {
-    queue: Queue
-    voiceProcessState: VoiceProcessState
+    queue: QueueItem[]
+    voiceProcessState: VoiceProcess[]
 };
 
-const MAX_TEXT_LENGTH = 1000000;
 
-const MAX_QUEUE = 5;
-export type Queue = QueueItem[];
-export type QueueItem = {
-    id: string
-    startDate: number
-    textItems: string[]
-}
-
-const MAX_PROCESS = 2;
-const MAX_POOL_SIZE = 2; //across MAX_PROCESS
-export type VoiceProcessState = VoiceProcess[];
-export type VoiceProcess = {
-    id: string
-    startDate: number
-    textItemLength: number
-    progress: number
-    status: VoiceProcessStatus;
-    outputFilePath?: string
-}
-
-enum VoiceProcessStatus {
-    IN_PROGRESS = "IN_PROGRESS",
-    FAILED = "FAILED",
-    SUCCESS = "SUCCESS"
-}
-
-
-export const bookRunsPath = __dirname + "/../../../python/bookRuns";
 const DELETE_OLD_VOICE_PROCESS_INTERVAL = 1 * 60 * 60 * 1000 //1 hour
 const startRemoveOldVoiceProcess = () => {
     setInterval(() => {
-        for (let id of state.voiceProcessState) {
-            if (state.voiceProcessState[id].startDate + DELETE_OLD_VOICE_PROCESS_INTERVAL - 1 < utils.now()) {
-                fse.removeSync(`${bookRunsPath}/${id}`);
+        state.voiceProcessState = state.voiceProcessState.filter(voiceProcess => {
+            if (voiceProcess.startDate + DELETE_OLD_VOICE_PROCESS_INTERVAL - 1 < utils.now()) {
+                fse.removeSync(`${bookRunsPath}/${voiceProcess.id}`);
+                return false;
             }
-        }
+            return true;
+        });
     }, DELETE_OLD_VOICE_PROCESS_INTERVAL);
 }
 
 const MAX_QUEUE_TIMEOUT = 1 * 60 * 60 * 1000 //1 hour
 const startRemoveOldQueue = () => {
     setInterval(() => {
-        for (let id of state.queueState) {
-            if (state.queueState[id].startDate + MAX_QUEUE_TIMEOUT - 1 < utils.now()) {
-                //TODO
-            }
-        }
+        state.queue = state.queue.filter(queueItem => queueItem.startDate + MAX_QUEUE_TIMEOUT - 1 < utils.now());
     }, MAX_QUEUE_TIMEOUT);
 }
 
@@ -105,25 +84,50 @@ const checkQueueState = (): void => {
     if (countInProgress() >= MAX_PROCESS) return;
 
     const queue = state.queue.shift();
-    state.voiceProcessState.push({
+    const voiceProcess = {
         id: queue.id,
         progress: 0,
         status: VoiceProcessStatus.IN_PROGRESS,
         startDate: utils.now(),
-        textItemLength: queue.textItems.length
+        textItems: String[]
+    };
+    state.voiceProcessState.push(voiceProcess);
+    generateVoice(voiceProcess).finally(() => {
+        rearrangePoolConcurrency();
     });
-    generateVoice(queue.id, queue.textItems);
+    rearrangePoolConcurrency();
+}
+
+function rearrangePoolConcurrency() {
+    console.log("rearrangePoolConcurrency");
+    const voiceProcesses = filterInProgress();
+    let poolSize = MAX_POOL_SIZE;
+    while (poolSize > 0) {
+        voiceProcesses.forEach(voiceProcess => {
+            if (poolSize > 0) {
+                const pool = voiceProcess.taskPool as any;
+                pool._customConcurency = (pool._customConcurency || 0) + 1;
+                pool.setConcurrency(pool._customConcurency);
+                poolSize--;
+            }
+        })
+    }
+}
+
+const filterInProgress = (): VoiceProcess[] => {
+    return state.voiceProcessState.filter(item => item.status === VoiceProcessStatus.IN_PROGRESS);
 }
 
 const countInProgress = (): number => {
-    const count = state.voiceProcessState.reduce((acc: number, voiceProcess: VoiceProcess) => {
-        return voiceProcess.status === VoiceProcessStatus.IN_PROGRESS ? acc + 1 : acc;
-    }, 0);
+    // const count = state.voiceProcessState.reduce((acc: number, voiceProcess: VoiceProcess) => {
+    //     return voiceProcess.status === VoiceProcessStatus.IN_PROGRESS ? acc + 1 : acc;
+    // }, 0);
+    const count = filterInProgress().length;
     return count;
 }
 
-const generateVoice = async (id: string, textItems: string[]): Promise<void> => {
-    await generateAudios(progress, textItems, id);
+const generateVoice = async (voiceProcess: VoiceProcess): Promise<void> => {
+    await generateAudios(voiceProcess);
     await glueFiles(progress, id);
 }
 
