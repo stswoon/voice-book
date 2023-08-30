@@ -1,6 +1,6 @@
 import fse from "fs-extra";
 import {utils} from "../utils";
-import {translitToRussian} from "./textTranslits";
+import {translitDigits, translitToRussian} from "./textTranslits";
 import {splitText} from "./splitText";
 import {adjectives, animals, colors, uniqueNamesGenerator} from "unique-names-generator";
 import {glueFiles} from "./ffmpegConvertor";
@@ -51,7 +51,7 @@ const init = () => {
 
 const prepareText = (text: string): string[] => {
     text = translitToRussian(text);
-    //TODO numbers
+    text = translitDigits(text);
     const textItems = splitText(text);
     return textItems;
 }
@@ -128,7 +128,8 @@ const countInProgress = (): number => {
 
 const generateVoice = async (voiceProcess: VoiceProcess): Promise<void> => {
     await generateAudios(voiceProcess);
-    await glueFiles(progress, id);
+    await glueFiles(voiceProcess.id, voiceProcess.textItems.length);
+    voiceProcess.outputFilePath = `${bookRunsPath}/${voiceProcess.id}/concatenated-audio.mp3`;
 }
 
 export const voiceBookService = {

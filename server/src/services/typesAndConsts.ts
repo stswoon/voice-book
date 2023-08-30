@@ -2,6 +2,8 @@ import {TaskPool} from "@antmind/task-pool";
 
 export const MAX_TEXT_LENGTH = 1000000;
 
+export const SILERO_MAX_LEN = 800; //sometimes fails if near 1000 end even more then 800
+
 export const MAX_QUEUE = 5;
 export type QueueItem = {
     id: string
@@ -19,6 +21,7 @@ export type VoiceProcess = {
     status: VoiceProcessStatus
     taskPool?: TaskPool
     outputFilePath?: string
+    cancel?: boolean
 }
 
 export enum VoiceProcessStatus {
@@ -29,3 +32,4 @@ export enum VoiceProcessStatus {
 
 
 export const bookRunsPath = __dirname + "/../../../python/bookRuns";
+export const sileroEngineFileName = "silero.py";

@@ -1,3 +1,7 @@
+export function translitDigits(s: string) {
+    //TODO numbers - https://github.com/meritt/rubles
+}
+
 export function translitToRussian(s: string): string {
     function safeTranslit(char: string) {
         switch (char) {
