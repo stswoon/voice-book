@@ -1,9 +1,8 @@
 import express, {NextFunction, Request, Response} from "express";
 import compression from "compression";
-
+import cors from "cors";
+//const cors = require('cors');
 import {voiceBookRouter} from "./controllers/voiceBookRouter";
-
-var cors = require('cors');
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -26,8 +25,6 @@ app.use("/api/voiceBook", voiceBookRouter);
 const staticDir = __dirname + "/../../client/dist";
 console.log("staticDir=" + staticDir);
 app.use("/", express.static(staticDir, {maxAge: 10 * 365 * 24 * 60 * 60 * 1000})); //10 years
-
-
 
 console.info("Application starting...");
 app.listen(PORT, () => console.info(`Application listening on ${PORT}`));

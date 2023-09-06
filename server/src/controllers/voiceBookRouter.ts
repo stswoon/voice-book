@@ -1,91 +1,65 @@
 import {Router} from "express";
-import {uniqueNamesGenerator, adjectives, colors, animals} from "unique-names-generator";
-import {translitToRussian} from "../services/textTranslits";
-import {splitText, splitTextSimple} from "../services/splitText";
-import {generateAudios} from "../services/pythonTts";
-import {glueFiles} from "../services/ffmpegConvertor";
 import {voiceBookService} from "../services/voiceBookService";
+import {cpus} from "os";
 
 voiceBookService.init();
 
 export const voiceBookRouter = Router();
 
-let isInProgress = false;
-
 voiceBookRouter.post("/generate", async (req, res) => {
-    if (isInProgress) {
-        return res.status(409).json({error: "Sorry, only one queue is supported now"});
-    }
-    const id = generateName();
+    console.info("/generate");
+    const text = req.body.text;
     try {
-        const text = req.body.text;
-        progress[id] = {status: 'queue 1/1', startDate: (new Date()).getTime(), fileBuffers: {}}; //todo queue progress
-        isInProgress = true;
-        runVoiceBook(id, text)
-            .then(() => {
-                progress[id].status = "ready"
-                isInProgress = false;
-            })
-            .catch(cause => {
-                isInProgress = false;
-                progress[id].status = "error";
-                console.error("Error-runVoiceBook::" + cause);
-                console.error(cause);
-            });
-        return res.status(200).json({processId: id, status: progress[id].status});
-    } catch (error) {
-        isInProgress = false;
-        progress[id].status = "error";
-        console.error(error);
-        return res.status(500).json({error: "Sorry, something went wrong"});
+        const id = voiceBookService.queueForGeneration(text);
+        return res.status(200).json({processId: id});
+    } catch (e) {
+        console.error(e);
+        return res.status(500).json({error: e.toString()});
     }
 });
 
-const generateName = (): string => uniqueNamesGenerator({dictionaries: [adjectives, colors, animals]}); // big_red_donkey
-
-async function runVoiceBook(id: string, text: string): Promise<void> {
-    text = translitToRussian(text);
-    const textItems = splitText(text);
-    // const textItems = splitTextSimple(text);
-    if (textItems.length === 0) {
-        progress[id].status = "error";
-        console.error("empty text");
-        throw new Error("empty text");
-    }
-    progress[id].length = textItems.length;
-    await generateAudios(progress, textItems, id);
-    await glueFiles(progress, id);
-    progress[id].status = "ready";
-}
-
 voiceBookRouter.get("/:id/download", async (req, res) => {
+    console.info("/download");
     const id = req.params.id;
-    if (progress[id].outputFilePath) {
-        return res.download(progress[id]!.outputFilePath!);
-    } else if (progress[id].outputStream) {
-        res.attachment('audio.mp3');
-        progress[id].outputStream!.pipe(res);
-    } else {
-        res.status(404);
+    try {
+        const outputFilePath = voiceBookService.getOutputFilePath(id);
+        if (outputFilePath) {
+            return res.download(outputFilePath!);
+        } else {
+            const message = `Process with id = ${id} still in progress or queue`;
+            console.error(message);
+            res.status(409).json({message});
+        }
+    } catch (e) {
+        const message = `No process with id = ${id}`;
+        console.error(message);
+        res.status(404).json({message});
     }
 });
 
 voiceBookRouter.get("/:id/progress", async (req, res) => {
+    console.info("/progress");
     const id = req.params.id;
-    if (progress[id] == null) {
-        return res.status(404).json({processId: id, status: "notExist"});
-    } else {
-        return res.status(200).json({processId: id, status: progress[id].status});
+    try {
+        const progress = voiceBookService.getProgress(id);
+        const status = voiceBookService.getStatus(id);
+        return res.status(200).json({processId: id, progress: progress, status: status});
+    } catch (e) {
+        const message = `No process with id = ${id}`;
+        console.error(message);
+        res.status(404).json({message});
     }
 });
 
 voiceBookRouter.delete("/:id/cancel", async (req, res) => {
+    console.info("/cancel");
     const id = req.params.id;
-    if (progress[id] == null) {
-        return res.status(404).json({processId: id, status: "notExist"});
-    } else {
-        progress[id].cancel = true;
-        console.log(`Terminating processId=${id}`);
+    try {
+        voiceBookService.terminate(id);
         return res.status(200).json({processId: id, status: "terminating..."});
+    } catch (e) {
+        const message = `No process with id = ${id}`;
+        console.error(message);
+        res.status(404).json({message});
     }
 });

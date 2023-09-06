@@ -6,6 +6,7 @@ import {adjectives, animals, colors, uniqueNamesGenerator} from "unique-names-ge
 import {glueFiles} from "./ffmpegConvertor";
 import {generateAudios} from "./ttsService";
 import {
+    bookRunsPath,
     MAX_POOL_SIZE,
     MAX_PROCESS,
     MAX_QUEUE,
@@ -14,10 +15,9 @@ import {
     VoiceProcess,
     VoiceProcessStatus
 } from "./typesAndConsts";
-import {bookRunsPath} from "./globalState";
 
 
-export const state: State = {}
+export const state: State = {queue: [], voiceProcessState: []};
 export type State = {
     queue: QueueItem[]
     voiceProcessState: VoiceProcess[]
@@ -58,9 +58,9 @@ const prepareText = (text: string): string[] => {
 
 const generateName = (): string => uniqueNamesGenerator({dictionaries: [adjectives, colors, animals]}); // big_red_donkey
 
-const queueForGeneration = (text: string): void => {
+const queueForGeneration = (text: string): string => {
     if (text.length > MAX_TEXT_LENGTH) {
-        throw Error("Too long text, pls split it");
+        throw Error(`Too long text, pls split it to be less then ${MAX_TEXT_LENGTH}`);
     }
     let textItems = prepareText(text);
     if (textItems.length === 0) {
@@ -71,12 +71,14 @@ const queueForGeneration = (text: string): void => {
     if (state.queue.length >= MAX_QUEUE) {
         throw Error("The Queue is full please try later");
     }
+    const id = generateName()
     state.queue.push({
-        id: generateName(),
+        id,
         textItems: textItems,
         startDate: utils.now()
     });
     checkQueueState();
+    return id;
 }
 
 const checkQueueState = (): void => {
@@ -89,13 +91,12 @@ const checkQueueState = (): void => {
         progress: 0,
         status: VoiceProcessStatus.IN_PROGRESS,
         startDate: utils.now(),
-        textItems: String[]
+        textItems: queue.textItems
     };
     state.voiceProcessState.push(voiceProcess);
-    generateVoice(voiceProcess).finally(() => {
+    generateVoice(voiceProcess, rearrangePoolConcurrency).finally(() => {
         rearrangePoolConcurrency();
     });
-    rearrangePoolConcurrency();
 }
 
 function rearrangePoolConcurrency() {
@@ -110,29 +111,85 @@ function rearrangePoolConcurrency() {
                 pool.setConcurrency(pool._customConcurency);
                 poolSize--;
             }
-        })
+        });
     }
+    voiceProcesses.forEach(voiceProcess => delete (voiceProcess.taskPool as any)._customConcurency);
 }
 
 const filterInProgress = (): VoiceProcess[] => {
     return state.voiceProcessState.filter(item => item.status === VoiceProcessStatus.IN_PROGRESS);
 }
+const countInProgress = (): number => filterInProgress().length;
 
-const countInProgress = (): number => {
-    // const count = state.voiceProcessState.reduce((acc: number, voiceProcess: VoiceProcess) => {
-    //     return voiceProcess.status === VoiceProcessStatus.IN_PROGRESS ? acc + 1 : acc;
-    // }, 0);
-    const count = filterInProgress().length;
-    return count;
+const getProcessById = (id: string): VoiceProcess | undefined => state.voiceProcessState.find(voiceProcess => voiceProcess.id === id);
+
+const generateVoice = async (voiceProcess: VoiceProcess, rearrangePoolConcurrency: any): Promise<void> => {
+    await generateAudios(voiceProcess, rearrangePoolConcurrency);
+    if (voiceProcess.cancel) {
+        fse.removeSync(`${bookRunsPath}/${voiceProcess.id}`);
+        state.voiceProcessState = state.voiceProcessState.filter(item => item.id !== voiceProcess.id);
+    } else {
+        await glueFiles(voiceProcess.id, voiceProcess.textItems.length);
+        voiceProcess.outputFilePath = `${bookRunsPath}/${voiceProcess.id}/concatenated-audio.mp3`;
+        voiceProcess.status = VoiceProcessStatus.SUCCESS;
+    }
 }
 
-const generateVoice = async (voiceProcess: VoiceProcess): Promise<void> => {
-    await generateAudios(voiceProcess);
-    await glueFiles(voiceProcess.id, voiceProcess.textItems.length);
-    voiceProcess.outputFilePath = `${bookRunsPath}/${voiceProcess.id}/concatenated-audio.mp3`;
+const getOutputFilePath = (id: string): string | undefined => {
+    const voiceProcess = getProcessById(id);
+    if (voiceProcess == undefined) {
+        throw new Error(`Process with id = ${id} not exist`);
+    }
+    return voiceProcess.outputFilePath;
+}
+
+const getProgress = (id: string): number => {
+    const voiceProcess = getProcessById(id);
+    if (voiceProcess == undefined) {
+        const queueItem = state.queue.find(queueItem => queueItem.id === id);
+        if (queueItem == undefined) {
+            throw new Error(`Process with id = ${id} not exist`);
+        } else {
+            return 0;
+        }
+    }
+    return voiceProcess.progress;
+}
+
+const getStatus = (id: string): VoiceProcessStatus => {
+    const voiceProcess = getProcessById(id);
+    if (voiceProcess == undefined) {
+        const queueItem = state.queue.find(queueItem => queueItem.id === id);
+        if (queueItem == undefined) {
+            throw new Error(`Process with id = ${id} not exist`);
+        } else {
+            return VoiceProcessStatus.QUEUE;
+        }
+    } else {
+        return voiceProcess.status;
+    }
+}
+
+const terminate = (id: string): void => {
+    const voiceProcess = getProcessById(id);
+    if (voiceProcess == undefined) {
+        const queueItem = state.queue.find(queueItem => queueItem.id === id);
+        if (queueItem == undefined) {
+            throw new Error(`Process with id = ${id} not exist`);
+        } else {
+            state.queue = state.queue.filter(queueItem => queueItem.id !== id);
+        }
+    } else {
+        voiceProcess.cancel = true;
+        voiceProcess.status = VoiceProcessStatus.TERMINATING
+    }
 }
 
 export const voiceBookService = {
     init,
-    queueForGeneration
+    queueForGeneration,
+    getOutputFilePath,
+    getProgress,
+    getStatus,
+    terminate
 }

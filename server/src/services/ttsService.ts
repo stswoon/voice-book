@@ -12,7 +12,7 @@ async function safeCreateBaseBookRunDirectory(): Promise<void> {
     }
 }
 
-export async function generateAudios(voiceProcess: VoiceProcess): Promise<void> {
+export async function generateAudios(voiceProcess: VoiceProcess,  rearrangePoolConcurrency: any): Promise<void> {
     console.log("generateAudios::id=" + voiceProcess.id);
     await safeCreateBaseBookRunDirectory();
 
@@ -22,10 +22,11 @@ export async function generateAudios(voiceProcess: VoiceProcess): Promise<void> 
     const progressDelta = 100 / voiceProcess.textItems.length;
     const pool = new TaskPool({concurrency: START_POOL_LIMIT});
     voiceProcess.taskPool = pool;
+    rearrangePoolConcurrency();
 
     for (let i = 0; i < voiceProcess.textItems.length; ++i) {
         const task = new Task(async (i: any) => {
-            if (voiceProcess.cancel) {
+            if (voiceProcess.cancel) { //TODO: find pool with cancel
                 console.log("Cancel Task");
                 return;
             }

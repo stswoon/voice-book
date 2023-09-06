@@ -27,7 +27,9 @@ export type VoiceProcess = {
 export enum VoiceProcessStatus {
     IN_PROGRESS = "IN_PROGRESS",
     FAILED = "FAILED",
-    SUCCESS = "SUCCESS"
+    SUCCESS = "SUCCESS",
+    QUEUE = "QUEUE",
+    TERMINATING = "TERMINATING"
 }
 
 

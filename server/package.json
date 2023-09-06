@@ -19,7 +19,8 @@
         "@ffmpeg-installer/ffmpeg": "^1.1.0",
         "@ffprobe-installer/ffprobe": "^2.1.1",
         "audioconcat": "^0.1.4",
-        "fluent-ffmpeg": "^2.1.2"
+        "fluent-ffmpeg": "^2.1.2",
+        "@vicimpa/rubles": "^0.1.10"
     },
     "devDependencies": {
         "@types/compression": "^1.7.2",

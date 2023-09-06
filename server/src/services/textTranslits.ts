@@ -1,5 +1,12 @@
+import {format} from "@vicimpa/rubles";
+
+
 export function translitDigits(s: string) {
-    //TODO numbers - https://github.com/meritt/rubles
+    const replacer = (match, p1) => {
+        return format(match, "$summString");
+    };
+    s = s.replace(/\d+/g, replacer);
+    return s;
 }
 
 export function translitToRussian(s: string): string {
@@ -109,28 +116,7 @@ export function translitToRussian(s: string): string {
                 return "З";
             case "z":
                 return "з";
-            case "0":
-                return "ноль";
-            case "1":
-                return "один";
-            case "2":
-                return "два";
-            case "3":
-                return "три";
-            case "4":
-                return "четыре";
-            case "5":
-                return "пять";
-            case "6":
-                return "шесть";
-            case "7":
-                return "семь";
-            case "8":
-                return "восемь";
-            case "9":
-                return "девять";
         }
-        //TODO: numbers lib for digits
         return char;
     }
 

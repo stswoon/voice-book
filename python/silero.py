@@ -1,24 +1,5 @@
 import sys
 
-def start():
-    print("step0 - check args")
-    sys.stdout.flush()
-    # https://stackoverflow.com/a/63573649  - because of error while run from node "UnicodeEncodeError: 'charmap' codec can't encode characters in position 12-19: character maps to <undefined>"
-    sys.stdin.reconfigure(encoding='utf-8')
-    sys.stdout.reconfigure(encoding='utf-8')
-
-    if len(sys.argv) > 1:
-        # https://stackoverflow.com/a/33329251
-        input_text = sys.argv[1]
-        print("input_text=" + input_text)
-        # voice = sys.argv[2]
-        # print("voice=" + voice)
-        tts(input_text)
-    else:
-        print("no args so skip start automatically")
-    sys.stdout.flush()
-start()
-
 # tested on python 3.10
 # pip install torch numpy torchaudio omegaconf
 # https://colab.research.google.com/github/snakers4/silero-models/blob/master/examples_tts.ipynb#scrollTo=7b9e704a
@@ -82,7 +63,25 @@ def tts(input_text):
 
     print_flush("step5 - Finish, time=" + str(t))
 
-
 def print_flush(s):
     print(s)
     sys.stdout.flush()
+
+def start():
+    print("step0 - check args")
+    sys.stdout.flush()
+    # https://stackoverflow.com/a/63573649  - because of error while run from node "UnicodeEncodeError: 'charmap' codec can't encode characters in position 12-19: character maps to <undefined>"
+    sys.stdin.reconfigure(encoding='utf-8')
+    sys.stdout.reconfigure(encoding='utf-8')
+
+    if len(sys.argv) > 1:
+        # https://stackoverflow.com/a/33329251
+        input_text = sys.argv[1]
+        print("input_text=" + input_text)
+        # voice = sys.argv[2]
+        # print("voice=" + voice)
+        tts(input_text)
+    else:
+        print("no args so skip start automatically")
+    sys.stdout.flush()
+start()
