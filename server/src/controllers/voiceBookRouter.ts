@@ -1,6 +1,5 @@
 import {Router} from "express";
 import {voiceBookService} from "../services/voiceBookService";
-import {cpus} from "os";
 
 voiceBookService.init();
 
@@ -11,8 +10,9 @@ voiceBookRouter.post("/generate", async (req, res) => {
     const text = req.body.text;
     try {
         const id = voiceBookService.queueForGeneration(text);
+        console.info(`start generation ${id}`);
         return res.status(200).json({processId: id});
-    } catch (e) {
+    } catch (e: any) {
         console.error(e);
         return res.status(500).json({error: e.toString()});
     }
@@ -24,7 +24,7 @@ voiceBookRouter.get("/:id/download", async (req, res) => {
     try {
         const outputFilePath = voiceBookService.getOutputFilePath(id);
         if (outputFilePath) {
-            return res.download(outputFilePath!);
+            res.download(outputFilePath!);
         } else {
             const message = `Process with id = ${id} still in progress or queue`;
             console.error(message);
@@ -38,12 +38,12 @@ voiceBookRouter.get("/:id/download", async (req, res) => {
 });
 
 voiceBookRouter.get("/:id/progress", async (req, res) => {
-    console.info("/progress");
     const id = req.params.id;
+    console.info(`/progress, id=${id}`);
     try {
         const progress = voiceBookService.getProgress(id);
         const status = voiceBookService.getStatus(id);
-        return res.status(200).json({processId: id, progress: progress, status: status});
+        res.status(200).json({processId: id, progress: progress, status: status});
     } catch (e) {
         const message = `No process with id = ${id}`;
         console.error(message);
@@ -62,4 +62,8 @@ voiceBookRouter.delete("/:id/cancel", async (req, res) => {
         console.error(message);
         res.status(404).json({message});
     }
+});
+
+voiceBookRouter.get("/monitoring", async (req, res) => {
+    res.json(voiceBookService.monitoring());
 });

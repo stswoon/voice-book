@@ -31,18 +31,36 @@ const setProcessId = (processId: string): void => {
 }
 const getProcessId = (): string => localStorage.getItem("processId");
 
+interface PollingType {
+    processId: string;
+    progress: number;
+    status: VoiceProcessStatus;
+}
+
+enum VoiceProcessStatus {
+    IN_PROGRESS = "IN_PROGRESS",
+    FAILED = "FAILED",
+    SUCCESS = "SUCCESS",
+    QUEUE = "QUEUE",
+    TERMINATING = "TERMINATING"
+}
+
 let pollingTimerId: any;
 const POLLING_PERIOD = 5000;
-const polling = async (processId: string, processStatus: (status: string) => boolean, notFirst?: boolean): Promise<void> => {
+const polling = async (processId: string, processStatus: (pollingData: PollingType) => boolean, notFirst?: boolean): Promise<void> => {
     return new Promise((resolve, reject) => {
         pollingTimerId = setTimeout(async () => {
             try {
-                const response = await fetch(ROUTES.progress.replace("{processId}", processId)).then(res => res.json());
-                const continueFlag = processStatus(response.status)
+                let response = await fetch(ROUTES.progress.replace("{processId}", processId));
+                if (response.status >= 400) {
+                    throw new Error(response.toString());
+                }
+                const pollingData = await response.json() as PollingType;
+                const continueFlag = processStatus(pollingData)
                 if (continueFlag) {
                     return polling(processId, processStatus, true);
                 }
-                resolve(response.status);
+                resolve();
             } catch (e) {
                 reject(e);
             }
@@ -73,19 +91,23 @@ const send = async (processId?: string): Promise<void> => {
         console.log("AppService.send::processId=", processId);
         setProcessId(processId);
         setButtonsVisibility(0, true, false, true);
-        await polling(processId, (status: string) => {
+
+        const pollingStatusCallback = (pollingData: PollingType) => {
+            const status = pollingData.status;
             console.log("AppService.send.polling::progress=", status);
-            if (status === "ready") {
+            if (status === VoiceProcessStatus.SUCCESS) {
                 setButtonsVisibility(null, false, true, false);
                 return false;
-            } else if (status === "notExist" || status === "error") {
+            } else if (status === VoiceProcessStatus.FAILED || status === VoiceProcessStatus.TERMINATING) {
                 throw new Error(`Fail to polling ${processId}, because=${status}`);
                 // return false;
             } else {
-                setButtonsVisibility(status as any, true, false, true);
+                setButtonsVisibility(pollingData.progress, true, false, true);
                 return true;
             }
-        });
+        }
+
+        await polling(processId, pollingStatusCallback);
         time = Math.round((new Date()).getTime() - time / 1000);
         console.log("AppService.send - finish, time (in sec) =", time);
     } catch (cause) {

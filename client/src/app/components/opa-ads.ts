@@ -7,6 +7,7 @@ const template = () => `
         ${strings().OpaAds.donate.replace("{DONATE}", '<a href="https://yoomoney.ru/to/41001998657825">DONATE</a>')}
     </div>
 </div>
+
 <!-- Yandex.RTB R-A-2572196-1 -->
 <div class="opa-ads_yandex" id="yandex_rtb_R-A-2572196-1">${strings().OpaAds.adblockDisable}</div>
 </script>

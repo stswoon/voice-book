@@ -43,7 +43,7 @@ function splitLongSentence(items: string[], maxLen: number) {
     return items2;
 }
 
-function optimizeSentence(items: string[], maxLen): string[] {
+function optimizeSentence(items: string[], maxLen: number): string[] {
     const optimizedItems = [];
     let i = 0;
     let optimizedItem = items[i];

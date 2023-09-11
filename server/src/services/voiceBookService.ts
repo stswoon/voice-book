@@ -23,6 +23,9 @@ export type State = {
     voiceProcessState: VoiceProcess[]
 };
 
+const debugInfo: any = {
+    _customConcurency: {}
+};
 
 const DELETE_OLD_VOICE_PROCESS_INTERVAL = 1 * 60 * 60 * 1000 //1 hour
 const startRemoveOldVoiceProcess = () => {
@@ -87,11 +90,11 @@ const checkQueueState = (): void => {
 
     const queue = state.queue.shift();
     const voiceProcess = {
-        id: queue.id,
+        id: queue!.id,
         progress: 0,
         status: VoiceProcessStatus.IN_PROGRESS,
         startDate: utils.now(),
-        textItems: queue.textItems
+        textItems: queue!.textItems
     };
     state.voiceProcessState.push(voiceProcess);
     generateVoice(voiceProcess, rearrangePoolConcurrency).finally(() => {
@@ -110,6 +113,7 @@ function rearrangePoolConcurrency() {
                 pool._customConcurency = (pool._customConcurency || 0) + 1;
                 pool.setConcurrency(pool._customConcurency);
                 poolSize--;
+                debugInfo._customConcurency[voiceProcess.id] = pool._customConcurency;
             }
         });
     }
@@ -133,6 +137,7 @@ const generateVoice = async (voiceProcess: VoiceProcess, rearrangePoolConcurrenc
         voiceProcess.outputFilePath = `${bookRunsPath}/${voiceProcess.id}/concatenated-audio.mp3`;
         voiceProcess.status = VoiceProcessStatus.SUCCESS;
     }
+    delete debugInfo._customConcurency[voiceProcess.id];
 }
 
 const getOutputFilePath = (id: string): string | undefined => {
@@ -181,8 +186,15 @@ const terminate = (id: string): void => {
         }
     } else {
         voiceProcess.cancel = true;
-        voiceProcess.status = VoiceProcessStatus.TERMINATING
+        voiceProcess.status = VoiceProcessStatus.TERMINATING;
     }
+}
+
+const monitoring = () => {
+    return {
+        //state,
+        debugInfo
+    };
 }
 
 export const voiceBookService = {
@@ -191,5 +203,6 @@ export const voiceBookService = {
     getOutputFilePath,
     getProgress,
     getStatus,
-    terminate
+    terminate,
+    monitoring
 }

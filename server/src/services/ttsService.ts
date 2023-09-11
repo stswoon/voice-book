@@ -50,7 +50,7 @@ export async function generateAudios(voiceProcess: VoiceProcess,  rearrangePoolC
     console.log("pool finished");
 }
 
-async function safeRetry(id, i, text) {
+async function safeRetry(id: string, i: string, text: string) {
     if (!(await fse.exists(`${bookRunsPath}/${id}/${i}/test.wav`))) {
         console.warn(`WARN: file not created so run tss step again for task ${i} for process ${id}`);
         await tts(id, text, `${bookRunsPath}/${id}/${i}`);
@@ -65,7 +65,7 @@ async function copyPython(textItemPath: string): Promise<void> {
 function tts(id: string, text: string, cwd: string): Promise<void> {
     console.log(`tts[processId=${id}]::cwd=${cwd}`);
     return new Promise((resolve, reject) => {
-        const logs = [];
+        const logs: any[] = [];
 
         // https://stackoverflow.com/questions/23450534/how-to-call-a-python-function-from-node-js
         // https://community.spiceworks.com/topic/1008185-node-js-spawn-working-directory

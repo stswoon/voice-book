@@ -2,7 +2,7 @@ import {format} from "@vicimpa/rubles";
 
 
 export function translitDigits(s: string) {
-    const replacer = (match, p1) => {
+    const replacer = (match: string) => {
         return format(match, "$summString");
     };
     s = s.replace(/\d+/g, replacer);

@@ -46,7 +46,7 @@ async function convertToMp3_File(wavFilename: string) {
         });
 }
 
-async function glueMp3Files(id: string, length: number): Promise<unknown> {
+async function glueMp3Files(id: string, length: number): Promise<void> {
     //https://www.reddit.com/r/node/comments/qoya5y/how_to_convert_audio_from_wav_to_mp3_in_nodejs/
     //https://5k-team.trilogy.com/hc/en-us/articles/360016761260-How-to-Concatenate-Audio-Files-in-NodeJS
     //https://www.reddit.com/r/node/comments/qoya5y/comment/hjrsepb/?utm_source=share&utm_medium=web3x&utm_name=web3xcss&utm_term=1&utm_content=share_button
@@ -57,7 +57,7 @@ async function glueMp3Files(id: string, length: number): Promise<unknown> {
     // })
 
     console.log("concatinating files...")
-    const songs = []
+    const songs: string[] = []
     for (let i = 0; i < length; ++i) {
         songs.push(`${bookRunsPath}/${id}/${i}/test.mp3`);
     }

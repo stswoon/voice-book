@@ -1,7 +1,6 @@
 import express, {NextFunction, Request, Response} from "express";
 import compression from "compression";
 import cors from "cors";
-//const cors = require('cors');
 import {voiceBookRouter} from "./controllers/voiceBookRouter";
 
 const PORT = process.env.PORT || 3000;
