@@ -37,7 +37,7 @@ describe('splitText', () => {
         assert.deepStrictEqual(splitText("abcd efgh ijkl mnop", 10), ["abcd efgh", "ijkl mnop"]);
     });
     it('trim and remove empty arrays maxLen error', () => {
-        assert.throws(() => splitText("  aaaa  .  .  b  ", 3));
+        assert.deepStrictEqual(splitText("  aaaa  .  .  b  ", 3), ["aaa", "a", "b"]);
     });
     it('word longer then maxLen', () => {
         assert.throws(() => splitText("0123456789a0123456789", 10));

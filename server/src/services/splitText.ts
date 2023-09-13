@@ -12,11 +12,31 @@ function splitTextSimple(text: string): string[] {
 
     const replacer = (match: string, p1: string): string => p1 + "${splitter}";
     text = text.replace(/([.?!]+)/g, replacer);
+
     let items = text.split("${splitter}");
 
-    items = items
+    items = filterNonAlphabet(items);
+    return items;
+}
+
+function splitLongSentence(items: string[], maxLen: number) {
+    const items2 = [];
+    for (let item of items) {
+        if (item.length > maxLen) {
+            let words = item.split(" ")
+            words = filterNonAlphabet(words);
+            words = optimizeSentence(words, maxLen);
+            words.forEach(word => items2.push(word));
+        } else {
+            items2.push(item);
+        }
+    }
+    return items2;
+}
+
+function filterNonAlphabet(items: string[]): string[] {
+    return items
         .map(item => {
-            //if sentence contains only special symbols it cause error in TTS so make such sentence empty
             let tmp = item.replace(/[A-Za-zА-Яа-я]*/gi, "");
             if (tmp.length === item.length) {
                 return "";
@@ -25,22 +45,6 @@ function splitTextSimple(text: string): string[] {
             }
         })
         .filter(item => item.length !== 0); //skip all empty sentences
-
-    return items;
-}
-
-function splitLongSentence(items: string[], maxLen: number) {
-    const items2 = [];
-    for (let item of items) {
-        if (item.length < maxLen) {
-            items2.push(item);
-        } else {
-            let words = item.split(" ")
-            words = optimizeSentence(words, maxLen);
-            words.forEach(word => items2.push(word))
-        }
-    }
-    return items2;
 }
 
 function optimizeSentence(items: string[], maxLen: number): string[] {

@@ -7,14 +7,15 @@
     },
     "license": "MIT",
     "scripts": {
-        "patch-version": "npm --no-git-tag-version version patch",
-        "build": "npm run client:ci-and-build && npm run server:ci-and-build",
+        "build": "npm run client:ci-and-build && npm run server:ci-and-build && npm run test",
         "start": "cd server && npm run start",
         "-----": "echo 0",
+        "patch-version": "npm --no-git-tag-version version patch",
+        "test": "cd server && npm run test",
         "server:serve": "cd server && npm run serve",
         "client:serve": "cd client && npm run serve",
         "server:ci-and-build": "cd server && npm ci && npm run build",
         "client:ci-and-build": "cd client && npm ci && npm run build",
-        "build-witout-ci": "cd client && npm run build && cd .. && cd server && npm run build"
+        "build-without-ci": "cd client && npm run build && cd .. && cd server && npm run build"
     }
 }

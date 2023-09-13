@@ -10,9 +10,8 @@ export type QueueItem = {
     startDate: number
     textItems: string[]
 }
-
 export const MAX_PROCESS = 2;
-export const MAX_POOL_SIZE = 2; //across MAX_PROCESS, should be more then MAX_PROCESS
+export const MAX_POOL_SIZE: number = (process.env.MAX_POOL_SIZE as number | undefined) || 2; //across MAX_PROCESS, should be more then MAX_PROCESS
 export type VoiceProcess = {
     id: string
     startDate: number
@@ -32,6 +31,13 @@ export enum VoiceProcessStatus {
     TERMINATING = "TERMINATING"
 }
 
+export type State = {
+    queue: QueueItem[]
+    voiceProcessState: VoiceProcess[]
+};
 
 export const bookRunsPath = __dirname + "/../../../python/bookRuns";
 export const sileroEngineFileName = "silero.py";
+
+export const DELETE_OLD_VOICE_PROCESS_INTERVAL = 48 * 60 * 60 * 1000 //48 hours
+export const MAX_QUEUE_TIMEOUT = 1 * 60 * 60 * 1000 //1 hours

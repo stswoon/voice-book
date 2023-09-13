@@ -11,41 +11,15 @@ import {
     MAX_PROCESS,
     MAX_QUEUE,
     MAX_TEXT_LENGTH,
-    QueueItem,
     VoiceProcess,
     VoiceProcessStatus
 } from "./typesAndConsts";
+import {startRemoveOldQueue, startRemoveOldVoiceProcess, state} from "./BookRepository";
 
-
-export const state: State = {queue: [], voiceProcessState: []};
-export type State = {
-    queue: QueueItem[]
-    voiceProcessState: VoiceProcess[]
-};
 
 const debugInfo: any = {
     _customConcurency: {}
 };
-
-const DELETE_OLD_VOICE_PROCESS_INTERVAL = 1 * 60 * 60 * 1000 //1 hour
-const startRemoveOldVoiceProcess = () => {
-    setInterval(() => {
-        state.voiceProcessState = state.voiceProcessState.filter(voiceProcess => {
-            if (voiceProcess.startDate + DELETE_OLD_VOICE_PROCESS_INTERVAL - 1 < utils.now()) {
-                fse.removeSync(`${bookRunsPath}/${voiceProcess.id}`);
-                return false;
-            }
-            return true;
-        });
-    }, DELETE_OLD_VOICE_PROCESS_INTERVAL);
-}
-
-const MAX_QUEUE_TIMEOUT = 1 * 60 * 60 * 1000 //1 hour
-const startRemoveOldQueue = () => {
-    setInterval(() => {
-        state.queue = state.queue.filter(queueItem => queueItem.startDate + MAX_QUEUE_TIMEOUT - 1 < utils.now());
-    }, MAX_QUEUE_TIMEOUT);
-}
 
 const init = () => {
     startRemoveOldVoiceProcess();
@@ -106,7 +80,7 @@ function rearrangePoolConcurrency() {
     console.log("rearrangePoolConcurrency");
     const voiceProcesses = filterInProgress();
     let poolSize = MAX_POOL_SIZE;
-    while (poolSize > 0) {
+    while (poolSize > 0 && voiceProcesses.length > 0) {
         voiceProcesses.forEach(voiceProcess => {
             if (poolSize > 0) {
                 const pool = voiceProcess.taskPool as any;
