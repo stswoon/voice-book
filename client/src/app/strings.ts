@@ -10,7 +10,10 @@ const en = {
     OpaTtsRunControls: {
         send: "Send",
         download: "Download",
-        cancel: "Cancel"
+        cancel: "Cancel",
+        closeTab: "Close tab",
+        splitByChapters: "Split by chapters",
+        splitChapterText: "Chapter"
     },
     OpaCookieAccept: {
         text: "This site use cookie for adds. Use the Accept button to consent. Leave site to decline." +
@@ -39,6 +42,9 @@ const ru: StringsType = {
         send: "Сгенерировать",
         download: "Скачать",
         cancel: "Отменить",
+        closeTab: "Закрыть вкладку",
+        splitByChapters: "Разбить по главам",
+        splitChapterText: "Глава"
     },
     OpaCookieAccept: {
         text: "Этот сайт использует cookie для рекламу. Нажмите кнопку Принять чтобы предоставить согласие." +

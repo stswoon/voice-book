@@ -18,6 +18,10 @@ opa-header {
     align-items: center;
 }
 
+opa-header .opa-header__right {
+    margin-left: auto
+}
+
 opa-text-controls {
     height: calc(100vh - 150px - 36px - 42px - 20px - 20px);
     min-height: 200px;

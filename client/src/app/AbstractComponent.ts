@@ -1,6 +1,3 @@
-// import "./user-list-component.css";
-// import template from "./user-list-component.html?raw";
-
 // https://stackoverflow.com/questions/29182244/convert-a-string-to-a-template-string
 // https://reactgo.com/javascript-convert-string-literal/
 export const interpolateTemplateString = (s: string, params: object): string => {
