@@ -21,10 +21,11 @@ import "./app/components/opa-tts-run-controls"
 import "./app/components/opa-text-controls.ts"
 import "./app/components/opa-ads.ts"
 import "./app/components/opa-cookie-accept.ts"
+import "./app/components/opa-tabs.ts"
 
 import "./style.css"
 
-import {AppService} from "./app/AppService.ts";
+import {AppService} from "./app/services/AppService.ts";
 
 (window as any).AppService = AppService;
 document.addEventListener("DOMContentLoaded", () => {

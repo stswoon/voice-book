@@ -8,4 +8,4 @@ export function loadScript(src: string): void {
     // script.onload = callback;
     // script.onerror = callback;
     document.head.appendChild(script);
-};
+}

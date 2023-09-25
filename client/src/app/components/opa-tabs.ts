@@ -1,28 +1,31 @@
 import {AbstractComponent, Template} from "../AbstractComponent";
+import {AppService} from "../services/AppService";
 
-const template: Template<any> = ({version}) => `
- <ui5-tabcontainer
-    fixed=""
-    collapsed=""
-    data-sap-ui-fastnavgroup="true"
-    media-range="XL"
-  >
-    <ui5-tab text="Home" slot="default-1"></ui5-tab>
-    <ui5-tab text="What's new" selected="" slot="default-2"></ui5-tab>
-    <ui5-tab text="Who are we" slot="default-3"></ui5-tab>
-    <ui5-tab text="About" slot="default-4"></ui5-tab>
-    <ui5-tab text="Contacts" slot="default-5"></ui5-tab>
-  </ui5-tabcontainer>
-`;
+const template: Template<any> = ({selectedtabid, tabs}) => {
+    tabs = tabs || [];
+    const ui5Tabs: string = tabs.map(tab => {
+        //return `<ui5-tab text="${tab.name}" ${tab.id === selectedtabid ? "selected" : ""} id="${tab.id}" disabled></ui5-tab>`
+        return `<ui5-tab text="${tab.name}" ${tab.id === selectedtabid ? "selected" : ""} id="${tab.id}"></ui5-tab>`
+    })
+    return `<ui5-tabcontainer fixed collapsed>${ui5Tabs}</ui5-tabcontainer>`;
+};
 
-class OpaHeader extends AbstractComponent {
+class OpaTabs extends AbstractComponent {
     constructor() {
-        super(template);
+        super(template, {tabs: []});
     }
 
     static get observedAttributes(): string[] {
-        return ["version"];
+        return ["selectedtabid"];
+    }
+
+    protected render() {
+        this.state.tabs = AppService.getState().tabs || [];
+        super.render();
+        this.querySelector("ui5-tabcontainer").addEventListener("ui5-tab-select", (event:  any) => {
+            AppService.selectTab(event.detail.tab.id);
+        });
     }
 }
 
-customElements.define("opa-header", OpaHeader);
+customElements.define("opa-tabs", OpaTabs);

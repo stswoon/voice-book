@@ -1,4 +1,4 @@
-import {AppService} from "./AppService.ts";
+import {AppService} from "./services/AppService.ts";
 
 export type StringsType = typeof en;
 export const strings = (): StringsType => {
@@ -12,6 +12,7 @@ const en = {
         download: "Download",
         cancel: "Cancel",
         closeTab: "Close tab",
+        newTab: "New tab",
         splitByChapters: "Split by chapters",
         splitChapterText: "Chapter"
     },
@@ -25,6 +26,7 @@ const en = {
         itemGreetings: "Greetings",
         itemHelloWorld: "Hello World",
         itemThreePigs: "Three Pigs",
+        tab: "Tab",
     },
     OpaAds: {
         donate: "If you like app you can {DONATE} me. Sorry for ads but I need 7$/mo to maintain server.",
@@ -43,6 +45,7 @@ const ru: StringsType = {
         download: "Скачать",
         cancel: "Отменить",
         closeTab: "Закрыть вкладку",
+        newTab: "Новая вкладка",
         splitByChapters: "Разбить по главам",
         splitChapterText: "Глава"
     },
@@ -57,6 +60,7 @@ const ru: StringsType = {
         itemGreetings: "Приветствие",
         itemHelloWorld: "Привет Мир",
         itemThreePigs: "Три Поросенка",
+        tab: "Вкладка",
     },
     OpaAds: {
         donate: "Если вам нравиться приложение вы можете перейти по ссылке {DONATE}. Извиняюсь за рекламу," +

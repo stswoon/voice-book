@@ -1,14 +1,14 @@
 import {AbstractComponent, Template} from "../AbstractComponent";
 import {strings} from "../strings";
 import {testData0, testData1, testData2} from "./testData";
-import {AppService} from "../AppService.ts";
+import {AppService} from "../services/AppService.ts";
 
 interface OpaTtsRunControlsState {
     disableSendBtn: boolean;
     disableCancelBtn: boolean;
     disableDownloadBtn: boolean;
     // processId: string;
-    // queueStatus: string;
+    // queueNumber: string;
     progress: number;
 }
 
@@ -35,6 +35,7 @@ const template: Template<any> = (params) => {
             <ui5-button x-bind:disabled="state.disableCancelBtn" @click="AppService.cancel()">${strings().OpaTtsRunControls.cancel}</ui5-button>
             <ui5-progress-indicator x-show="state.progress != null" x-bind:value="state.progress"></ui5-progress-indicator>
             <ui5-button x-bind:disabled="state.disableDownloadBtn" @click="AppService.download()">${strings().OpaTtsRunControls.download}</ui5-button>
+            <ui5-button @click="AppService.newTab()">${strings().OpaTtsRunControls.newTab}</ui5-button>
             <ui5-button @click="AppService.closeCurrentTab()">${strings().OpaTtsRunControls.closeTab}</ui5-button>
             <ui5-button @click="AppService.splitByChapters()">${strings().OpaTtsRunControls.splitByChapters}</ui5-button>
             <ui5-input id="chapterSplitText" value=${strings().OpaTtsRunControls.splitChapterText}></ui5-input>
