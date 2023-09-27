@@ -8,7 +8,10 @@ export const strings = (): StringsType => {
 
 const en = {
     OpaTtsRunControls: {
-        send: "Send",
+        new: "Clear",
+        send: "Generate",
+        complexSend: "Generate right ...",
+        complexSendTooltip: "Generate all tabs from current to the right end",
         download: "Download",
         cancel: "Cancel",
         closeTab: "Close tab",
@@ -30,7 +33,7 @@ const en = {
     },
     OpaAds: {
         donate: "If you like app you can {DONATE} for server maintaining.",
-        adblockDisable: "Please allow add-block to show ads because I need at least 5$\mo for server maintain."
+        adblockDisable: "Please allow add-block to show ads because it's needed at least 5$/mo for server maintaining."
     },
     AppServiceToasts: {
         errorSendToast: "Error during processing text, processId={processId}",
@@ -41,7 +44,10 @@ const en = {
 
 const ru: StringsType = {
     OpaTtsRunControls: {
+        new: "Отчистить",
         send: "Сгенерировать",
+        complexSend: "Сгенерировать направо ...",
+        complexSendTooltip: "Сгенерировать все табы c текущей до конца направо",
         download: "Скачать",
         cancel: "Отменить",
         closeTab: "Закрыть вкладку",
@@ -64,7 +70,7 @@ const ru: StringsType = {
     },
     OpaAds: {
         donate: "Если вам нравиться приложение поддержите работу сервера {DONATE}.",
-        adblockDisable: "Пожалуйста выключите ad-block что реклама могла отобразиться, т.к. мне нужно хотя бы " +
+        adblockDisable: "Пожалуйста выключите ad-block что реклама могла отобразиться, т.к. нужно хотя бы " +
             "500р/месяц для поддержания сервера."
     },
     AppServiceToasts: {

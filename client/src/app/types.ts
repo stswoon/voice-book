@@ -20,7 +20,7 @@ export interface BookTab {
     processStatus?: VoiceProcessStatus;
 }
 
-export type AppStateChangeCallback = (AppState) => void;
+// export type AppStateChangeCallback = (AppState) => void;
 
 export interface PollingType {
     progress: number;

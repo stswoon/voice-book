@@ -1,21 +1,21 @@
 {
     "name": "voice-book",
-    "version": "0.14.0",
+    "version": "0.15.0",
     "description": "App to make tts for books",
     "engines": {
         "node": "18.x"
     },
     "license": "MIT",
     "scripts": {
-        "build": "npm run client:ci-and-build && npm run server:ci-and-build && npm run test",
+        "build": "npm run client:ci-and-build && npm run server:ci-and-build && npm run server:test",
         "start": "cd server && npm run start",
         "-----": "echo 0",
         "patch-version": "npm --no-git-tag-version version patch",
-        "test": "cd server && npm run test",
+        "server:test": "cd server && npm run test",
         "server:serve": "cd server && npm run serve",
         "client:serve": "cd client && npm run serve",
         "server:ci-and-build": "cd server && npm ci && npm run build",
         "client:ci-and-build": "cd client && npm ci && npm run build",
-        "build-without-ci": "cd client && npm run build && cd .. && cd server && npm run build"
+        "build-without-ci": "cd client && npm run build && cd .. && cd server && npm run build && cd .. && npm run server:test"
     }
 }

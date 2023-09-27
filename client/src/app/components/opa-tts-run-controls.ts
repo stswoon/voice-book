@@ -1,7 +1,7 @@
 import {AbstractComponent, Template} from "../AbstractComponent";
 import {strings} from "../strings";
-import {testData0, testData1, testData2} from "./testData";
-import {AppService} from "../services/AppService.ts";
+// import {testData0, testData1, testData2} from "./testData";
+// import {AppService} from "../services/AppService.ts";
 
 interface OpaTtsRunControlsState {
     disableSendBtn: boolean;
@@ -22,6 +22,7 @@ const template: Template<any> = (params) => {
     //TODO move menu
     return `
         <div class="opa-tts-run-controls" x-data='{ state:${JSON.stringify(state)} }'>
+            <ui5-button @click="AppService.newProject()">${strings().OpaTtsRunControls.new}</ui5-button>
             <!-- <div>
             //     <ui5-button id="btnOpenTestTextsMenu">${strings().OpaTestTextMenu.menuTitle}</ui5-button>
             //     <ui5-menu>
@@ -31,6 +32,10 @@ const template: Template<any> = (params) => {
             //     </ui5-menu>
             // </div> -->
             <ui5-button design="Emphasized" x-bind:disabled="state.disableSendBtn" @click="AppService.send()">${strings().OpaTtsRunControls.send}</ui5-button>
+            <ui5-button design="Emphasized" x-bind:disabled="state.disableSendBtn" @click="AppService.sendAllRight()"
+                        tooltip="${strings().OpaTtsRunControls.complexSendTooltip}">
+                ${strings().OpaTtsRunControls.complexSend}
+            </ui5-button>
             <ui5-busy-indicator x-show="state.progress != null" size="Small" delay="0" active></ui5-busy-indicator>
             <ui5-button x-bind:disabled="state.disableCancelBtn" @click="AppService.cancel()">${strings().OpaTtsRunControls.cancel}</ui5-button>
             <ui5-progress-indicator x-show="state.progress != null" x-bind:value="state.progress"></ui5-progress-indicator>

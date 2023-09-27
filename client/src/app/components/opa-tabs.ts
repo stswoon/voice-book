@@ -3,7 +3,7 @@ import {AppService} from "../services/AppService";
 
 const template: Template<any> = ({selectedtabid, tabs}) => {
     tabs = tabs || [];
-    const ui5Tabs: string = tabs.map(tab => {
+    const ui5Tabs: string = tabs.map((tab: any) => {
         //return `<ui5-tab text="${tab.name}" ${tab.id === selectedtabid ? "selected" : ""} id="${tab.id}" disabled></ui5-tab>`
         return `<ui5-tab text="${tab.name}" ${tab.id === selectedtabid ? "selected" : ""} id="${tab.id}"></ui5-tab>`
     })

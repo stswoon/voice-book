@@ -1,6 +1,6 @@
 import {AbstractComponent, Template} from "../AbstractComponent";
 
-const template: Template<any> = ({notifications}) => `
+const template: Template<any> = ({}) => `
   <ui5-shellbar
     primary-title="Corporate Portal"
     logo="../assets/images/sap-logo-svg.svg"

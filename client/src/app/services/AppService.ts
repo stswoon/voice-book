@@ -1,6 +1,6 @@
 import {testData0} from "../components/testData.ts";
 import {strings} from "../strings.ts";
-import {AppState, AppStateChangeCallback, PollingType, VoiceProcessStatus} from "../types";
+import {AppState, PollingType, VoiceProcessStatus} from "../types";
 import {v4 as uuid} from "uuid";
 
 let appState: AppState = {
@@ -19,7 +19,8 @@ const init = (): void => {
     triggerAppStateChange2();
 
     const selectedTab = getTabById(appState.selectedTabId);
-    if (selectedTab.processId && (selectedTab.processStatus === VoiceProcessStatus.QUEUE || selectedTab.processStatus === VoiceProcessStatus.IN_PROGRESS)) {
+    // if (selectedTab.processId && (selectedTab.processStatus === VoiceProcessStatus.QUEUE || selectedTab.processStatus === VoiceProcessStatus.IN_PROGRESS)) {
+    if (selectedTab.processId) {
         const processId = selectedTab.processId;
         setProcessId(processId);
         toast(strings().AppServiceToasts.initGetStatusToast.replace("{processId}", processId));
@@ -31,11 +32,11 @@ const init = (): void => {
 
 const saveState = () => localStorage.setItem("appState", JSON.stringify(appState));
 
-const getTabById = (id) => appState.tabs.find(tab => tab.id === id);
+const getTabById = (id: string) => appState.tabs.find(tab => tab.id === id);
 
-const appStateChangeCallbacks: AppStateChangeCallback[] = [];
-const onAppStateChange = (callback: AppStateChangeCallback): void => appStateChangeCallbacks.push(callback) as void;
-const triggerAppStateChange = (): void => appStateChangeCallbacks.forEach(callback => callback(appState));
+// const appStateChangeCallbacks: AppStateChangeCallback[] = [];
+// const onAppStateChange = (callback: AppStateChangeCallback): void => appStateChangeCallbacks.push(callback) as void;
+// const triggerAppStateChange = (): void => appStateChangeCallbacks.forEach(callback => callback(appState));
 
 const triggerAppStateChange2 = (): void => {
     saveState();
@@ -65,6 +66,9 @@ const getText = (): string => {
 
 const setProcessId = (processId: string): void => {
     document.querySelector("opa-tts-run-controls").setAttribute("processId", processId);
+    const tab = getTabById(appState.selectedTabId);
+    tab.processId = processId;
+    saveState();
 }
 const getProcessId = (): string => {
     const tab = getTabById(appState.selectedTabId);
@@ -170,7 +174,8 @@ export const polling = async (processId: string, processStatus: (pollingData: Po
                 const pollingData = await response.json() as PollingType;
                 const continueFlag = processStatus(pollingData)
                 if (continueFlag) {
-                    return polling(processId, processStatus, true);
+                    resolve(polling(processId, processStatus, true));
+                    return;
                 }
                 resolve();
             } catch (e) {
@@ -180,13 +185,41 @@ export const polling = async (processId: string, processStatus: (pollingData: Po
     });
 }
 
+export const newProject = (): void => {
+    cancel();
+    appState = {
+        loading: false,
+        selectedTabId: null,
+        tabs: []
+    };
+    newTab();
+    appState.tabs[0].text = testData0;
+    triggerAppStateChange2();
+}
+
+let sendAllRightTimeoutId: any;
+export const sendAllRight = (): void => {
+    let currentTab = getTabById(appState.selectedTabId)
+    let tabIndex = appState.tabs.indexOf(currentTab);
+    sendAllRightTimeoutId = setTimeout(async () => {
+        for (let i = tabIndex; i < appState.tabs.length; i++) {
+            console.log("AppService.sendAllRight iteration");
+            await send();
+            if (i + 1 < appState.tabs.length) {
+                appState.selectedTabId = appState.tabs[i + 1].id;
+                triggerAppStateChange2();
+            }
+        }
+    });
+}
+
 export const send = async (processId?: string): Promise<void> => {
     let time = (new Date()).getTime();
     console.log("AppService.send");
     try {
         if (!processId) {
             console.log("AppService.send::start a new one");
-            setProcessId(null);
+            // setProcessId(null);
             const response = await fetch(ROUTES.generate, {
                 method: "POST", body: JSON.stringify({text: getText()}),
                 headers: {"Content-Type": "application/json; charset=utf-8"}
@@ -232,10 +265,14 @@ export const send = async (processId?: string): Promise<void> => {
 
 const cancel = (): void => {
     console.log("AppService.cancel");
-    fetch(ROUTES.cancel.replace("{processId}", getProcessId()), {method: "DELETE"}).catch(e => {
-        console.error("Failed cancel process", e);
-        toast(strings().AppServiceToasts.errorCancelToast);
-    });
+    const processId = getProcessId();
+    if (processId) {
+        fetch(ROUTES.cancel.replace("{processId}", getProcessId()), {method: "DELETE"}).catch(e => {
+            console.error("Failed cancel process", e);
+            toast(strings().AppServiceToasts.errorCancelToast);
+        });
+    }
+    clearTimeout(sendAllRightTimeoutId);
     clearTimeout(pollingTimerId);
     setProcessId(null);
     setButtonsVisibility(null, false, true, true);
@@ -244,7 +281,9 @@ const cancel = (): void => {
 
 export const AppService = {
     setText,
+    newProject,
     send,
+    sendAllRight,
     init,
     download,
     cancel,
