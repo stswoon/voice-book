@@ -29,8 +29,8 @@ const en = {
         tab: "Tab",
     },
     OpaAds: {
-        donate: "If you like app you can {DONATE} me. Sorry for ads but I need 7$/mo to maintain server.",
-        adblockDisable: "Please allow add-block to show ads because I need at least 7$\mo for server maintain."
+        donate: "If you like app you can {DONATE} for server maintaining.",
+        adblockDisable: "Please allow add-block to show ads because I need at least 5$\mo for server maintain."
     },
     AppServiceToasts: {
         errorSendToast: "Error during processing text, processId={processId}",
@@ -63,10 +63,9 @@ const ru: StringsType = {
         tab: "Вкладка",
     },
     OpaAds: {
-        donate: "Если вам нравиться приложение вы можете перейти по ссылке {DONATE}. Извиняюсь за рекламу," +
-            "но нужно набрать 7$/месяц для поддержания сервера.",
+        donate: "Если вам нравиться приложение поддержите работу сервера {DONATE}.",
         adblockDisable: "Пожалуйста выключите ad-block что реклама могла отобразиться, т.к. мне нужно хотя бы " +
-            "7$/месяц для поддержания сервера."
+            "500р/месяц для поддержания сервера."
     },
     AppServiceToasts: {
         errorSendToast: "Ошибка при конвертации текста, processId={processId}",

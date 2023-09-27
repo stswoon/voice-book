@@ -116,11 +116,16 @@ const newTab = (text?: string): void => {
 }
 
 const closeCurrentTab = (): void => {
+    const currentTab = getTabById(appState.selectedTabId);
+    const selectedTabIndex = appState.tabs.indexOf(currentTab);
+    const newSelectedTabIndex = selectedTabIndex > 0 ? selectedTabIndex - 1 : 0;
+
     appState.tabs = appState.tabs.filter(tab => tab.id !== appState.selectedTabId);
     if (appState.tabs.length == 0) {
         newTab();
     }
-    appState.selectedTabId = appState.tabs[0].id;
+
+    appState.selectedTabId = appState.tabs[newSelectedTabIndex].id;
     triggerAppStateChange2();
 }
 
@@ -137,20 +142,12 @@ const splitByChapters = (): void => {
     const splitter = (document.getElementById("chapterSplitText") as any).value;
     let text = getText();
 
-
-    //TODO split
-    //TODO select previous
     const r = new RegExp("^" + splitter + " ", "gm");
-    // const newTabTexts = text.split(r);
-
-
-    const replacer = (match: string, p1: string): string => "${splitter}" + p1;
+    const replacer = (match: string): string => "${splitter}" + match;
     text = text.replace(r, replacer);
     let newTabTexts = text.split("${splitter}");
 
-    newTabTexts.forEach(tabText => {
-        newTab(tabText);
-    })
+    newTabTexts.forEach(tabText => newTab(tabText));
 }
 
 const ROUTES = {

@@ -5,9 +5,14 @@ interface TemplateParams {
     text: string
 }
 
+export const MAX_TEXT_LENGTH = 1000000;
+
 const template: Template<TemplateParams> = ({text}) => {
     text = (text || "").replaceAll('"', "'");
-    return `<ui5-textarea value="${text}"></ui5-textarea>`;
+    return `
+        <ui5-textarea value="${text}"></ui5-textarea>
+        <span class="opa-text-controls_counter">${text.length}</span>
+    `;
 };
 
 class OpaTextControls extends AbstractComponent {
@@ -35,7 +40,6 @@ class OpaTextControls extends AbstractComponent {
 customElements.define("opa-text-controls", OpaTextControls);
 
 
-//TODO split on charapters
 //TODO count of syumbols
 
 //TODO registration for > 1000 symbols
