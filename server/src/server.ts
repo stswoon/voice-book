@@ -1,9 +1,7 @@
 import express, {NextFunction, Request, Response} from "express";
 import compression from "compression";
-
-import {voiceBookRoutes} from "./controllers/generateVoiceBookRoute";
-
-var cors = require('cors');
+import cors from "cors";
+import {voiceBookRouter} from "./controllers/voiceBookRouter";
 
 const PORT = process.env.PORT || 3000;
 const app = express();
@@ -21,13 +19,11 @@ app.use((error: Error, req: Request, res: Response, next: NextFunction): void =>
 
 app.get("/health", (req: Request, res: Response) => res.send("OK"));
 
-app.use("/api/voiceBook", voiceBookRoutes);
+app.use("/api/voiceBook", voiceBookRouter);
 
 const staticDir = __dirname + "/../../client/dist";
 console.log("staticDir=" + staticDir);
 app.use("/", express.static(staticDir, {maxAge: 10 * 365 * 24 * 60 * 60 * 1000})); //10 years
-
-
 
 console.info("Application starting...");
 app.listen(PORT, () => console.info(`Application listening on ${PORT}`));

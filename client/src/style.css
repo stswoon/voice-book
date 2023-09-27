@@ -18,14 +18,24 @@ opa-header {
     align-items: center;
 }
 
+opa-header .opa-header__right {
+    margin-left: auto
+}
+
 opa-text-controls {
-    height: calc(100vh - 150px - 36px - 42px - 20px - 20px);
+    height: calc(100vh - 100px - 36px - 42px - 20px - 20px - 60px);
     min-height: 200px;
     display: block;
 }
 
 opa-text-controls > ui5-textarea {
     height: 100%
+}
+
+opa-text-controls > .opa-text-controls_counter {
+    position: absolute;
+    bottom: 20px;
+    right: 5%;
 }
 
 opa-tts-run-controls > .opa-tts-run-controls {
@@ -41,16 +51,16 @@ opa-tts-run-controls > .opa-tts-run-controls > * {
 
 opa-ads {
     display: block;
-    height: 150px;
+    height: 100px;
 }
 
-opa-ads > .opa-ads_donate {
+opa-header > .opa-header_donate {
     display: flex;
     align-items: center;
     flex-direction: column;
 }
 
-opa-ads > .opa-ads_donate > div {
+opa-header > .opa-header_donate > div {
     background: #e3eefb;
     padding: 10px;
     margin: 5px 10px;

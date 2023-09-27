@@ -1,37 +1,53 @@
-const SILERO_MAX_LEN = 800; //sometimes fails if near 1000 end even more then 800
+import {SILERO_MAX_LEN} from "./typesAndConsts";
 
-//seems split by sentence is better for sounds
-export function splitTextSimple(text: string): string[] {
+export function splitText(text: string, maxLen: number = SILERO_MAX_LEN): string[] {
+    let items = splitTextSimple(text);
+    items = splitLongSentence(items, maxLen);
+    items = optimizeSentence(items, maxLen);
+    return items;
+}
+
+function splitTextSimple(text: string): string[] {
     text = text.trim();
-    // const replacer = (match: string, p1: string, offset: number, string: string): string => {
-    const replacer = (match: string, p1: string): string => {
-        return p1 + "${splitter}";
-    };
+
+    const replacer = (match: string, p1: string): string => p1 + "${splitter}";
     text = text.replace(/([.?!]+)/g, replacer);
+
     let items = text.split("${splitter}");
-    items = items
+
+    items = filterNonAlphabet(items);
+    return items;
+}
+
+function splitLongSentence(items: string[], maxLen: number) {
+    const items2 = [];
+    for (let item of items) {
+        if (item.length > maxLen) {
+            let words = item.split(" ")
+            words = filterNonAlphabet(words);
+            words = optimizeSentence(words, maxLen);
+            words.forEach(word => items2.push(word));
+        } else {
+            items2.push(item);
+        }
+    }
+    return items2;
+}
+
+function filterNonAlphabet(items: string[]): string[] {
+    return items
         .map(item => {
-            let tmp = item.replace(/[A-Za-zА-Яа-я]*/gi, '');
+            let tmp = item.replace(/[A-Za-zА-Яа-я]*/gi, "");
             if (tmp.length === item.length) {
                 return "";
             } else {
                 return item.trim();
             }
         })
-        .filter(item => item.length !== 0);
-
-    // text = text.trim();
-    // let items = text.split(/[.?!]+/);
-    // items = items.filter(item => {
-    //     return item.trim().length !== 0;
-    // });
-    return items;
-    //TODO use MAX_SILERO
+        .filter(item => item.length !== 0); //skip all empty sentences
 }
 
-export function splitText(text: string, maxLen: number = SILERO_MAX_LEN): string[] {
-    const items = splitTextSimple(text);
-
+function optimizeSentence(items: string[], maxLen: number): string[] {
     const optimizedItems = [];
     let i = 0;
     let optimizedItem = items[i];
