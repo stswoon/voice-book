@@ -11,7 +11,7 @@ export type QueueItem = {
     textItems: string[]
 }
 export const MAX_PROCESS = 1; //2;
-export const MAX_POOL_SIZE: number = (process.env.MAX_POOL_SIZE as number | undefined) || 2; //across MAX_PROCESS, should be more then MAX_PROCESS
+export const MAX_POOL_SIZE: number = (process.env.MAX_POOL_SIZE as number | undefined) || 1;//2; //across MAX_PROCESS, should be more then MAX_PROCESS
 export type VoiceProcess = {
     id: string
     startDate: number
