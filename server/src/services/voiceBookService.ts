@@ -1,6 +1,6 @@
 import fse from "fs-extra";
 import {utils} from "../utils";
-import {translitDigits, translitToRussian} from "./textTranslits";
+import {pointAfterBeforeEnter, translitDigits, translitToRussian} from "./textTranslits";
 import {splitText} from "./splitText";
 import {adjectives, animals, colors, uniqueNamesGenerator} from "unique-names-generator";
 import {glueFiles} from "./ffmpegConvertor";
@@ -29,6 +29,7 @@ const init = () => {
 const prepareText = (text: string): string[] => {
     text = translitToRussian(text);
     text = translitDigits(text);
+    text = pointAfterBeforeEnter(text);
     const textItems = splitText(text);
     return textItems;
 }

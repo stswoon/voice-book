@@ -127,6 +127,15 @@ export function translitToRussian(s: string): string {
     return result
 }
 
+//add point after enter for voice pause
 export function pointAfterBeforeEnter(s: string): string {
-    return s;//TODO
+    const punctuation = [".", ",", "!", "?", ";", ":"];
+    const splitenters = s.split("\n");
+    for (let i = 0; i < splitenters.length; ++i) {
+        let item = splitenters[i];
+        if (!punctuation.includes(item[item.length -1]) && item.trim().length !== 0) {
+            splitenters[i] = item + ".";
+        }
+    }
+    return splitenters.join("\n");
 }
