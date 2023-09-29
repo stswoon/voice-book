@@ -126,3 +126,7 @@ export function translitToRussian(s: string): string {
     }
     return result
 }
+
+export function pointAfterBeforeEnter(s: string): string {
+    return s;//TODO
+}
