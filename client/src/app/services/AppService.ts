@@ -18,6 +18,10 @@ const init = (): void => {
     }
     triggerAppStateChange2();
 
+    getTabStatus();
+};
+
+const getTabStatus = () => {
     const selectedTab = getTabById(appState.selectedTabId);
     // if (selectedTab.processId && (selectedTab.processStatus === VoiceProcessStatus.QUEUE || selectedTab.processStatus === VoiceProcessStatus.IN_PROGRESS)) {
     if (selectedTab.processId) {
@@ -140,6 +144,8 @@ const getState = (): AppState => {
 const selectTab = (tabId: string): void => {
     appState.selectedTabId = tabId;
     triggerAppStateChange2();
+
+    getTabStatus();
 }
 
 const splitByChapters = (): void => {
