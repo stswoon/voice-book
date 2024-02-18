@@ -29,3 +29,8 @@ add mobile layout
 
 
 
+
+
+
+https://github.com/snakers4/silero-models/blob/v0.4.1/LICENSE
+https://creativecommons.org/licenses/by-nc-nd/4.0/deed.ru
