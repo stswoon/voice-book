@@ -152,10 +152,19 @@ const splitByChapters = (): void => {
     const splitter = (document.getElementById("chapterSplitText") as any).value;
     let text = getText();
 
-    const r = new RegExp("^" + splitter + " ", "gm");
-    const replacer = (match: string): string => "${splitter}" + match;
-    text = text.replace(r, replacer);
-    let newTabTexts = text.split("${splitter}");
+    
+    //const r = new RegExp("^" + splitter + " ", "gm");
+    //const replacer = (match: string): string => "${splitter}" + match;
+    //text = text.replace(r, replacer);
+    //let newTabTexts = text.split("${splitter}");
+    let newTabTexts = text.split(`${splitter}`);
+    newTabTexts = newTabTexts.map((s, index) => {
+        if (index === 0) {
+            return s;
+        } else {
+            return `${splitter}` + s;
+        }
+    });
 
     newTabTexts.forEach(tabText => newTab(tabText));
 }

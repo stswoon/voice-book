@@ -1,6 +1,6 @@
 {
     "name": "voice-book",
-    "version": "0.15.1",
+    "version": "0.15.2",
     "description": "App to make tts for books",
     "engines": {
         "node": "18.x"
