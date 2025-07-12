@@ -25,7 +25,6 @@ export async function generateAudios(voiceProcess: VoiceProcess): Promise<void> 
     console.log(`START_POOL_LIMIT=${START_POOL_LIMIT}`);
     const pool = new TaskPool({concurrency: START_POOL_LIMIT});
     voiceProcess.taskPool = pool;
-    state.taskPool = pool;
 
     for (let i = 0; i < voiceProcess.textItems.length; ++i) {
         const task = new Task(async (i: any) => {
@@ -50,7 +49,6 @@ export async function generateAudios(voiceProcess: VoiceProcess): Promise<void> 
     console.log("pool started");
     await pool.exec().catch();
     voiceProcess.taskPool = undefined;
-    state.taskPool = undefined;
     console.log(`pool finished, ${utils.timeSpend(startTime)}`);
 }
 
