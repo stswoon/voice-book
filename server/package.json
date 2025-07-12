@@ -4,7 +4,7 @@
     "scripts": {
         "start": "node dist/server.js",
         "build": "npm run clear && tsc",
-        "serve": "concurrently \"tsc --watch\" \"nodemon --delay 100ms dist/server.js\"",
+        "serve-be": "concurrently \"tsc --watch\" \"nodemon --delay 100ms dist/server.js\"",
         "clear": "rimraf server/dist",
         "test": "ts-mocha -p tsconfig.json src/**/*.spec.ts"
     },
@@ -16,7 +16,8 @@
         "audioconcat": "^0.1.4",
         "compression": "^1.7.4",
         "cors": "^2.8.5",
-        "express": "^4.18.2",
+        "dotenv": "^17.2.0",
+        "express": "^4.21.2",
         "fluent-ffmpeg": "^2.1.2",
         "fs-extra": "^11.1.1",
         "unique-names-generator": "^4.7.1",

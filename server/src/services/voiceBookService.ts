@@ -7,7 +7,6 @@ import {glueFiles} from "./ffmpegConvertor";
 import {generateAudios} from "./ttsService";
 import {
     bookRunsPath,
-    MAX_POOL_SIZE,
     MAX_PROCESS,
     MAX_QUEUE,
     MAX_TEXT_LENGTH,
@@ -72,27 +71,7 @@ const checkQueueState = (): void => {
         textItems: queue!.textItems
     };
     state.voiceProcessState.push(voiceProcess);
-    generateVoice(voiceProcess, rearrangePoolConcurrency).finally(() => {
-        rearrangePoolConcurrency();
-    });
-}
-
-function rearrangePoolConcurrency() {
-    console.log("rearrangePoolConcurrency");
-    const voiceProcesses = filterInProgress();
-    let poolSize = MAX_POOL_SIZE;
-    while (poolSize > 0 && voiceProcesses.length > 0) {
-        voiceProcesses.forEach(voiceProcess => {
-            if (poolSize > 0) {
-                const pool = voiceProcess.taskPool as any;
-                pool._customConcurency = (pool._customConcurency || 0) + 1;
-                pool.setConcurrency(pool._customConcurency);
-                poolSize--;
-                debugInfo._customConcurency[voiceProcess.id] = pool._customConcurency;
-            }
-        });
-    }
-    voiceProcesses.forEach(voiceProcess => delete (voiceProcess.taskPool as any)._customConcurency);
+    generateVoice(voiceProcess);
 }
 
 const filterInProgress = (): VoiceProcess[] => {
@@ -102,8 +81,8 @@ const countInProgress = (): number => filterInProgress().length;
 
 const getProcessById = (id: string): VoiceProcess | undefined => state.voiceProcessState.find(voiceProcess => voiceProcess.id === id);
 
-const generateVoice = async (voiceProcess: VoiceProcess, rearrangePoolConcurrency: any): Promise<void> => {
-    await generateAudios(voiceProcess, rearrangePoolConcurrency);
+const generateVoice = async (voiceProcess: VoiceProcess): Promise<void> => {
+    await generateAudios(voiceProcess);
     if (voiceProcess.cancel) {
         fse.removeSync(`${bookRunsPath}/${voiceProcess.id}`);
         state.voiceProcessState = state.voiceProcessState.filter(item => item.id !== voiceProcess.id);

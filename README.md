@@ -1,5 +1,7 @@
 # voice-book
 
+need install python + https://visualstudio.microsoft.com/ru/visual-cpp-build-tools/
+
 based on https://silero.ai/ - https://github.com/snakers4/silero-models
 
 pip install -r requirements.txt
